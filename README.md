@@ -14,7 +14,7 @@ Referencias:
 ## 1. Carregamento
 
 ```html
-<script src="../sdk/dtunnel-sdk.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelSDK@main/sdk/dtunnel-sdk.js"></script>
 <script>
   const sdk = new DTunnelSDK({
     strict: false,
