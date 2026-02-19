@@ -121,8 +121,8 @@ Links diretos:
   - `https://raw.githubusercontent.com/DTunnel0/DTunnelSDK/main/sdk/dtunnel-sdk.js`
 - jsDelivr CDN (branch `main`):
   - `https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelSDK@main/sdk/dtunnel-sdk.js`
-- jsDelivr CDN por versao (exemplo `v1.0.0`):
-  - `https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelSDK@v1.0.0/sdk/dtunnel-sdk.js`
+- jsDelivr CDN por versao (exemplo `v1.0.1`):
+  - `https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelSDK@v1.0.1/sdk/dtunnel-sdk.js`
 - Lista de releases (ZIP pronto para baixar):
   - `https://github.com/DTunnel0/DTunnelSDK/releases`
 
