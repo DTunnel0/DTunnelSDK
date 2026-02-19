@@ -118,13 +118,13 @@ sdk.on("error", (event) => {
 Links diretos:
 
 - Raw GitHub (branch `main`):
-  - `https://raw.githubusercontent.com/DTunnel0/DTunnelHtmlDoc/main/sdk/dtunnel-sdk.js`
+  - `https://raw.githubusercontent.com/DTunnel0/DTunnelSDK/main/sdk/dtunnel-sdk.js`
 - jsDelivr CDN (branch `main`):
-  - `https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelHtmlDoc@main/sdk/dtunnel-sdk.js`
+  - `https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelSDK@main/sdk/dtunnel-sdk.js`
 - jsDelivr CDN por versao (exemplo `v1.0.0`):
-  - `https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelHtmlDoc@v1.0.0/sdk/dtunnel-sdk.js`
+  - `https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelSDK@v1.0.0/sdk/dtunnel-sdk.js`
 - Lista de releases (ZIP pronto para baixar):
-  - `https://github.com/DTunnel0/DTunnelHtmlDoc/releases`
+  - `https://github.com/DTunnel0/DTunnelSDK/releases`
 
 ## 9. Publicar nova versao em 1 comando
 
