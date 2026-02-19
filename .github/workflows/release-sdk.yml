@@ -1,0 +1,47 @@
+name: release-sdk
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare SDK artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p dist/release
+
+          cp sdk/dtunnel-sdk.js dist/release/
+          cp sdk/dtunnel-sdk.d.ts dist/release/
+          cp sdk/README.md dist/release/
+
+          (
+            cd dist/release
+            zip -q "dtunnel-sdk-${VERSION}.zip" dtunnel-sdk.js dtunnel-sdk.d.ts README.md
+          )
+
+          shasum -a 256 "dist/release/dtunnel-sdk-${VERSION}.zip" > "dist/release/dtunnel-sdk-${VERSION}.zip.sha256"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/release/dtunnel-sdk.js
+            dist/release/dtunnel-sdk.d.ts
+            dist/release/README.md
+            dist/release/*.zip
+            dist/release/*.sha256

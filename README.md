@@ -112,3 +112,35 @@ sdk.on("error", (event) => {
 - [ ] payloads JSON com parse seguro.
 - [ ] tratamento de erro com `sdk.on("error", ...)`.
 - [ ] limpeza de listeners com `sdk.destroy()`.
+
+## 8. Download rapido do SDK
+
+Links diretos:
+
+- Raw GitHub (branch `main`):
+  - `https://raw.githubusercontent.com/DTunnel0/DTunnelHtmlDoc/main/sdk/dtunnel-sdk.js`
+- jsDelivr CDN (branch `main`):
+  - `https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelHtmlDoc@main/sdk/dtunnel-sdk.js`
+- jsDelivr CDN por versao (exemplo `v1.0.0`):
+  - `https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelHtmlDoc@v1.0.0/sdk/dtunnel-sdk.js`
+- Lista de releases (ZIP pronto para baixar):
+  - `https://github.com/DTunnel0/DTunnelHtmlDoc/releases`
+
+## 9. Publicar nova versao em 1 comando
+
+Com o repositorio limpo e commitado no `main`, execute:
+
+```powershell
+.\scripts\release-sdk.ps1 -Version 1.0.1
+```
+
+Esse comando:
+
+- cria a tag `v1.0.1`;
+- faz push da branch `main` e da tag;
+- dispara o workflow `.github/workflows/release-sdk.yml`, que publica automaticamente:
+  - `dtunnel-sdk.js`
+  - `dtunnel-sdk.d.ts`
+  - `README.md` do SDK
+  - `dtunnel-sdk-<versao>.zip`
+  - hash SHA-256 do ZIP
