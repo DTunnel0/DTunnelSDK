@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DTunnel SDK Bridge Example</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-alt: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --error: #ef4444;
+      --accent: #22d3ee;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #1e293b 0%, var(--bg) 40%, #020617 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: var(--accent);
+    }
+
+    p {
+      margin: 8px 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: var(--text);
+      background: #0b1220;
+      cursor: pointer;
+      transition: all 140ms ease;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .status {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .status span {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #0b1220;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .ok {
+      color: var(--ok) !important;
+    }
+
+    .warn {
+      color: var(--warn) !important;
+    }
+
+    .error {
+      color: var(--error) !important;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 260px;
+      max-height: 420px;
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>DTunnel SDK Bridge</h1>
+      <p>
+        Exemplo de consumo da bridge Android com suporte ao DTunnel SDK.
+        Este arquivo pode ser usado como base para QA e para bootstrap de paginas internas.
+      </p>
+      <div class="status">
+        <span id="statusSdk">SDK: verificando...</span>
+        <span id="statusBridge">Bridge: verificando...</span>
+        <span id="statusVpn">VPN: desconhecido</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Comandos principais</h2>
+      <div class="grid">
+        <button id="btnGetVpnState">DtGetVpnState.execute()</button>
+        <button id="btnStartVpn">DtExecuteVpnStart.execute()</button>
+        <button id="btnStopVpn">DtExecuteVpnStop.execute()</button>
+        <button id="btnGetConfigs">DtGetConfigs.execute()</button>
+        <button id="btnGetLogs">DtGetLogs.execute()</button>
+        <button id="btnClearLogs">DtClearLogs.execute()</button>
+        <button id="btnCheckUser">DtStartCheckUser.execute()</button>
+        <button id="btnUpdate">DtStartAppUpdate.execute()</button>
+        <button id="btnGetAppVersion">DtAppVersion.execute()</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Saida</h2>
+      <pre id="output"></pre>
+    </div>
+  </div>
+
+  <script src="../sdk/dtunnel-sdk.js"></script>
+  <script>
+    (function () {
+      const output = document.getElementById("output");
+      const statusSdk = document.getElementById("statusSdk");
+      const statusBridge = document.getElementById("statusBridge");
+      const statusVpn = document.getElementById("statusVpn");
+      const sdk = typeof window.DTunnelSDK === "function"
+        ? new window.DTunnelSDK({ strict: false, autoRegisterNativeEvents: false })
+        : null;
+
+      function now() {
+        return new Date().toISOString();
+      }
+
+      function print(type, message, data) {
+        const suffix = data === undefined ? "" : " " + safeStringify(data);
+        output.textContent += "[" + now() + "] [" + type + "] " + message + suffix + "\n";
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function safeStringify(value) {
+        try {
+          if (typeof value === "string") return value;
+          return JSON.stringify(value, null, 2);
+        } catch (error) {
+          return String(value);
+        }
+      }
+
+      function parseJsonOrRaw(payload) {
+        if (payload === null || payload === undefined) return null;
+        if (typeof payload !== "string") return payload;
+        try {
+          return JSON.parse(payload);
+        } catch (error) {
+          return payload;
+        }
+      }
+
+      function hasBridgeObject(name) {
+        return !!window[name];
+      }
+
+      function callBridge(objectName, methodName) {
+        const args = Array.prototype.slice.call(arguments, 2);
+        if (sdk) {
+          const result = sdk.call(objectName, methodName, args);
+          print("CALL", "sdk.call(" + objectName + "." + methodName + ")", result);
+          return result;
+        }
+
+        const target = window[objectName];
+
+        if (!target) {
+          print("ERROR", "Objeto nao disponivel: " + objectName);
+          return null;
+        }
+
+        const fn = target[methodName];
+        if (typeof fn !== "function") {
+          print("ERROR", "Metodo nao disponivel: " + objectName + "." + methodName + "()");
+          return null;
+        }
+
+        try {
+          const result = fn.apply(target, args);
+          print("CALL", objectName + "." + methodName + "()", result);
+          return result;
+        } catch (error) {
+          print("ERROR", "Falha em " + objectName + "." + methodName + "()", String(error));
+          return null;
+        }
+      }
+
+      function markBridgeStatus() {
+        if (sdk) {
+          statusSdk.textContent = "SDK: pronto";
+          statusSdk.className = "ok";
+        } else {
+          statusSdk.textContent = "SDK: nao carregado";
+          statusSdk.className = "warn";
+        }
+
+        const required = ["DtGetVpnState", "DtExecuteVpnStart", "DtExecuteVpnStop"];
+        const missing = required.filter(function (name) {
+          return !hasBridgeObject(name);
+        });
+
+        if (missing.length === 0) {
+          statusBridge.textContent = "Bridge: pronto";
+          statusBridge.className = "ok";
+          return;
+        }
+
+        statusBridge.textContent = "Bridge: parcial (faltando " + missing.join(", ") + ")";
+        statusBridge.className = "warn";
+      }
+
+      function updateVpnStatus(state) {
+        statusVpn.textContent = "VPN: " + (state || "desconhecido");
+      }
+
+      function onNativeEvent(name, payload) {
+        const parsed = parseJsonOrRaw(payload);
+        print("EVENT", name, parsed);
+
+        if (name === "DtVpnStateEvent") {
+          updateVpnStatus(parsed);
+        }
+      }
+
+      function parseAndPrettyPrint(title, value) {
+        print("INFO", title, parseJsonOrRaw(value));
+      }
+
+      document.getElementById("btnGetVpnState").addEventListener("click", function () {
+        const state = callBridge("DtGetVpnState", "execute");
+        updateVpnStatus(state);
+      });
+
+      document.getElementById("btnStartVpn").addEventListener("click", function () {
+        callBridge("DtExecuteVpnStart", "execute");
+      });
+
+      document.getElementById("btnStopVpn").addEventListener("click", function () {
+        callBridge("DtExecuteVpnStop", "execute");
+      });
+
+      document.getElementById("btnGetConfigs").addEventListener("click", function () {
+        const raw = callBridge("DtGetConfigs", "execute");
+        parseAndPrettyPrint("Configs", raw);
+      });
+
+      document.getElementById("btnGetLogs").addEventListener("click", function () {
+        const raw = callBridge("DtGetLogs", "execute");
+        parseAndPrettyPrint("Logs", raw);
+      });
+
+      document.getElementById("btnClearLogs").addEventListener("click", function () {
+        callBridge("DtClearLogs", "execute");
+      });
+
+      document.getElementById("btnCheckUser").addEventListener("click", function () {
+        callBridge("DtStartCheckUser", "execute");
+      });
+
+      document.getElementById("btnUpdate").addEventListener("click", function () {
+        callBridge("DtStartAppUpdate", "execute");
+      });
+
+      document.getElementById("btnGetAppVersion").addEventListener("click", function () {
+        callBridge("DtAppVersion", "execute");
+      });
+
+      window.DtVpnStateEvent = function (state) {
+        onNativeEvent("DtVpnStateEvent", state);
+      };
+
+      window.DtVpnStartedSuccessEvent = function () {
+        onNativeEvent("DtVpnStartedSuccessEvent");
+      };
+
+      window.DtVpnStoppedSuccessEvent = function () {
+        onNativeEvent("DtVpnStoppedSuccessEvent");
+      };
+
+      window.DtNewLogEvent = function () {
+        onNativeEvent("DtNewLogEvent");
+      };
+
+      window.DtNewDefaultConfigEvent = function () {
+        onNativeEvent("DtNewDefaultConfigEvent");
+      };
+
+      window.DtCheckUserStartedEvent = function () {
+        onNativeEvent("DtCheckUserStartedEvent");
+      };
+
+      window.DtCheckUserResultEvent = function (dataJson) {
+        onNativeEvent("DtCheckUserResultEvent", dataJson);
+      };
+
+      window.DtCheckUserErrorEvent = function (message) {
+        onNativeEvent("DtCheckUserErrorEvent", message);
+      };
+
+      window.DtMessageErrorEvent = function (dataJson) {
+        onNativeEvent("DtMessageErrorEvent", dataJson);
+      };
+
+      window.DtSuccessToastEvent = function (message) {
+        onNativeEvent("DtSuccessToastEvent", message);
+      };
+
+      window.DtErrorToastEvent = function (message) {
+        onNativeEvent("DtErrorToastEvent", message);
+      };
+
+      window.DtNotificationEvent = function (dataJson) {
+        onNativeEvent("DtNotificationEvent", dataJson);
+      };
+
+      markBridgeStatus();
+      const initialVpnState = callBridge("DtGetVpnState", "execute");
+      updateVpnStatus(initialVpnState);
+      print("INFO", "Pagina inicializada");
+    })();
+  </script>
+</body>
+</html>

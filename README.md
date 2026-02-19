@@ -1,254 +1,114 @@
-# DTunnel - Documentação da API
+# Guia de Integracao HTML com DTunnel SDK
 
-Esta é a documentação da API JavaScript para uso dos hooks nativos fornecidos pelo sistema DTunnel, disponível via `window.Dt*`. Abaixo estão listados todos os métodos/interfaces disponíveis, agrupados por categoria, com descrições, parâmetros, retornos e exemplos de uso.
+## Objetivo
 
-> **Importante:** Todos os métodos devem ser chamados a partir de JavaScript. Certifique-se de que o contexto `window.Dt*` está disponível antes de utilizá-los.
+Guia pratico para integrar paginas HTML usando somente a API JavaScript do `DTunnelSDK`.
 
----
+Referencias:
+- API: `dtunnel-sdk-api-eventos.md`
+- Sem SDK: `dtunnel-sdk-chamadas-sem-sdk.md`
+- Exemplo bridge: `examples/dtunnel-sdk-bridge-example.html`
+- Exemplo SDK: `examples/dtunnel-sdk-example.html`
+- Runtime: `sdk/dtunnel-sdk.js`
 
-## Índice
+## 1. Carregamento
 
-- [Configuração](#configuração)
-- [Ambiente de Rede](#ambiente-de-rede)
-- [VPN](#vpn)
-- [Interface Nativa](#interface-nativa)
-- [Informações de Dispositivo](#informações-de-dispositivo)
-- [Usuário e Autenticação](#usuário-e-autenticação)
-- [Logs](#logs)
-- [Tradução](#tradução)
-- [Notificações](#notificações)
-- [Web Views e URLs Externas](#web-views-e-urls-externas)
-- [HotSpot](#hotspot)
-- [Modo Avião](#modo-avião)
-- [Outros](#outros)
-
----
-
-## Configuração
-
-### `window.DtGetConfigs.execute()`
-
-Retorna um _array_ de categorias com itens de configuração.
-
-```js
-const configs = window.DtGetConfigs.execute();
-// Exemplo de retorno:
-// [ { id:1, name:'Categoria', sorter:1, color:'#FFF', items:[ {...} ] } ]
+```html
+<script src="../sdk/dtunnel-sdk.js"></script>
+<script>
+  const sdk = new DTunnelSDK({
+    strict: false,
+    autoRegisterNativeEvents: true,
+  });
+</script>
 ```
 
-### `window.DtSetConfig.execute(id: number): void`
+## 2. Chamada de APIs
 
-Define o item de configuração ativo pelo seu `id`.
-
-```js
-window.DtSetConfig.execute(1000);
-```
-
-### `window.DtGetDefaultConfig.execute(): Config | undefined`
-
-Retorna o item selecionado ou `undefined` se nenhum estiver ativo.
+Use os wrappers dos modulos:
 
 ```js
-const current = window.DtGetDefaultConfig.execute();
-if (current) console.log(current.name);
+const state = sdk.main.getVpnState();
+sdk.main.startVpn();
+const configs = sdk.config.getConfigs();
 ```
 
----
-
-## Ambiente de Rede
-
-### `window.DtGetLocalIP.execute(): string`
-
-Retorna o IP local (e.g., `'192.168.1.100'`).
-
-### `window.DtGetNetworkName.execute(): string`
-
-Nome da rede atual (e.g., `'WIFI'`, `'MOBILE'`).
-
-### `window.DtGetPingResult.execute(): number`
-
-Tempo de ping em milissegundos.
-
-### `window.DtGetNetworkData.execute(): { type_name:'MOBILE'|'WIFI', type:number, extra_info:string, detailed_state:string, reason?:string }`
-
-Retorna objeto com detalhes do estado de rede.
-
----
-
-## VPN
-
-### `window.DtGetVpnState.execute(): 'CONNECTED'|'DISCONNECTED'|'CONNECTING'|'STOPPING'|'NO_NETWORK'|'AUTH'|'AUTH_FAILED'`
-
-Estado atual da VPN.
-
-### `window.DtExecuteVpnStart.execute(): void`
-
-Inicia a conexão VPN.
-
-### `window.DtExecuteVpnStop.execute(): void`
-
-Para a conexão VPN.
-
----
-
-## Interface Nativa
-
-### `window.DtExecuteDialogConfig.execute(): void`
-
-Abre diálogo de configurações nativo.
-
-### `window.DtShowLoggerDialog.execute(): void`
-
-Abre diálogo de logs de conexão.
-
-### `window.DtShowMenuDialog.execute(): void`
-
-Abre menu de ferramentas nativas.
-
----
-
-## Informações de Dispositivo
-
-### `window.DtGetStatusBarHeight.execute(): number`
-
-Altura da barra de status (pixels).
-
-### `window.DtGetNavigationBarHeight.execute(): number`
-
-Altura da barra de navegação (pixels).
-
-### `window.DtGetDeviceID.execute(): string`
-
-ID único do dispositivo.
-
-### `window.DtAppVersion.execute(): string`
-
-Versão atual do aplicativo.
-
----
-
-## Usuário e Autenticação
-
-#### `window.DtUsername.get(): string` / `DtUsername.set(username: string): void`
-
-Obtem/define nome de usuário.
-
-#### `window.DtPassword.get(): string` / `DtPassword.set(password: string): void`
-
-Obtem/define senha.
-
-#### `window.DtUuid.get(): string` / `DtUuid.set(uuid: string): void`
-
-Obtem/define UUID (v2ray).
-
----
-
-## Logs
-
-### `window.DtGetLogs.execute(): string`
-
-Retorna JSON com todos os logs.
-
-### `window.DtClearLogs.execute(): void`
-
-Limpa todos os logs.
-
----
-
-## Tradução
-
-### `window.DtTranslateText.execute(label: string): string`
-
-Retorna texto traduzido para a chave.
+Chamadas dinamicas tambem sao suportadas:
 
 ```js
-const label = window.DtTranslateText.execute("LBL_START");
+sdk.call("DtGetVpnState", "execute");
+sdk.callJson("DtGetConfigs", "execute");
+sdk.callVoid("DtExecuteVpnStart", "execute");
 ```
 
----
+## 3. Eventos oficiais
 
-## Notificações
+Registre eventos semanticos:
 
-### `window.DtSendNotification.execute(title: string, message: string, imageUrl: string): void`
+```js
+sdk.on("vpnState", (event) => {
+  console.log(event.payload);
+});
 
-Envia notificação local.
+sdk.on("notification", (event) => {
+  console.log(event.payload);
+});
+```
 
----
+Callbacks globais oficiais:
+- `DtVpnStateEvent`
+- `DtVpnStartedSuccessEvent`
+- `DtVpnStoppedSuccessEvent`
+- `DtNewLogEvent`
+- `DtNewDefaultConfigEvent`
+- `DtCheckUserStartedEvent`
+- `DtCheckUserResultEvent`
+- `DtCheckUserErrorEvent`
+- `DtMessageErrorEvent`
+- `DtSuccessToastEvent`
+- `DtErrorToastEvent`
+- `DtNotificationEvent`
 
-## Web Views e URLs Externas
+## 4. Parse de JSON
 
-### `window.DtStartWebViewActivity.execute(url: string): void`
+```js
+function parseJsonOrRaw(payload) {
+  if (payload == null) return null;
+  if (typeof payload !== "string") return payload;
+  try {
+    return JSON.parse(payload);
+  } catch {
+    return payload;
+  }
+}
+```
 
-Abre página interna via WebView.
+## 5. Modo de erro
 
-### `window.DtOpenExternalUrl.execute(url: string): void`
+`strict: true`:
+- lanca excecao em falhas de chamada.
 
-Abre URL no navegador padrão.
+`strict: false`:
+- retorna `null`.
+- dispara evento `error`.
 
----
+```js
+sdk.on("error", (event) => {
+  console.error(event.error.code, event.error.message);
+});
+```
 
-## HotSpot
+## 6. Boas praticas
 
-### `window.DtGetStatusHotSpotService.execute(): 'STOPPED'|'RUNNING'`
+- criar uma instancia global unica do SDK por pagina.
+- registrar listeners antes de chamadas criticas.
+- tratar `null` como resposta valida.
+- usar `sdk.destroy()` no teardown da pagina.
 
-Status do serviço HotSpot.
+## 7. Checklist
 
-### `window.DtStartHotSpotService.execute(): void`
-
-Inicia HotSpot.
-
-### `window.DtStopHotSpotService.execute(): void`
-
-Para HotSpot.
-
-### `window.DtGetNetworkDownloadBytes.execute(): number`
-
-Total de bytes baixados.
-
-### `window.DtGetNetworkUploadBytes.execute(): number`
-
-Total de bytes enviados.
-
----
-
-## Modo Avião
-
-### `window.DtAirplaneState.execute(): 'ACTIVE'|'INACTIVE'`
-
-Estado do modo avião.
-
-### `window.DtAirplaneActivate.execute(): void`
-
-Ativa modo avião.
-
-### `window.DtAirplaneDeactivate.execute(): void`
-
-Desativa modo avião.
-
----
-
-## Outros
-
-### `window.DtGetLocalConfigVersion.execute(): string`
-
-Versão da configuração local (e.g., `'1.2.3'`).
-
-### `window.DtStartAppUpdate.execute(): void`
-
-Inicia processo de atualização da aplicação.
-
-### `window.DtStartCheckUser.execute(): void`
-
-Abre diálogo de checagem de usuário.
-
-### `window.DtAppIsCurrentAssistant.execute(): boolean`
-
-Verifica se app é assistente de voz padrão.
-
-### `window.DtGoToVoiceInputSettings.execute(): void`
-
-Abre configurações de assistente de voz.
-
----
-
-_Esta documentação será atualizada conforme novos métodos forem adicionados._
+- [ ] `DTunnelSDK` carregado antes de usar.
+- [ ] `autoRegisterNativeEvents: true` quando precisar eventos.
+- [ ] payloads JSON com parse seguro.
+- [ ] tratamento de erro com `sdk.on("error", ...)`.
+- [ ] limpeza de listeners com `sdk.destroy()`.
