@@ -94,6 +94,6 @@ npm run test:typecheck
 ## Release e publicacao
 
 ```bash
-npm run release:sdk -- --version 1.1.1
+npm run release:sdk -- --version X.Y.Z
 npm run publish:npm
 ```
