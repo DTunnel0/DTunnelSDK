@@ -7,8 +7,12 @@
   "main": "./sdk/dtunnel-sdk.js",
   "module": "./sdk/dtunnel-sdk.mjs",
   "types": "./sdk/dtunnel-sdk.d.ts",
+  "bin": {
+    "dtunnel-sdk": "./bin/dtunnel-sdk.mjs"
+  },
   "scripts": {
-    "examples:webview": "npm --prefix examples/typescript run build:webview && npm --prefix examples/react-typescript run build:webview",
+    "test": "node --import tsx --test ./tests/*.test.mts",
+    "test:typecheck": "tsc -p ./tests/tsconfig.json --noEmit",
     "publish:npm": "node ./scripts/publish-npm.mjs",
     "publish:npm:dry": "node ./scripts/publish-npm.mjs --dry-run --skip-auth",
     "release:sdk": "node ./scripts/release-sdk.mjs"
@@ -30,8 +34,11 @@
     "./sdk/dtunnel-sdk.d.ts": "./sdk/dtunnel-sdk.d.ts"
   },
   "files": [
+    "bin",
     "sdk",
     "react",
+    "templates",
+    "docs",
     "README.md",
     "LICENSE"
   ],
@@ -54,6 +61,11 @@
   },
   "engines": {
     "node": ">=16"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.3"
   },
   "repository": {
     "type": "git",

@@ -1,20 +1,36 @@
 # DTunnel SDK
 
-SDK JavaScript/TypeScript para consumir a bridge Android (`window.Dt...`) usada no WebView do DTunnel.
+SDK JavaScript/TypeScript para consumir a bridge Android (`window.Dt...`) no WebView.
 
-Inclui:
-- wrappers dos objetos nativos (`sdk.config`, `sdk.main`, `sdk.text`, `sdk.app`, `sdk.android`)
-- eventos nativos com API semantica (`sdk.on('vpnState', ...)`)
-- tipagem completa para TypeScript
-- helper para React em `dtunnel-sdk/react`
-
-## Instalacao (npm)
+## Instalacao
 
 ```bash
 npm install dtunnel-sdk
 ```
 
-## Uso com TypeScript
+## Inicializar projeto pronto
+
+Crie um projeto novo com template e `build:webview` ja configurado:
+
+```bash
+npx dtunnel-sdk init
+```
+
+Ou direto com flags:
+
+```bash
+npx dtunnel-sdk init meu-app --template react-typescript
+npx dtunnel-sdk init meu-app --template typescript --no-install
+npx dtunnel-sdk init meu-app --template cdn
+```
+
+Tambem funciona com `npm exec`:
+
+```bash
+npm exec dtunnel-sdk init meu-app --template react-typescript
+```
+
+## Uso rapido
 
 ```ts
 import DTunnelSDK from 'dtunnel-sdk';
@@ -25,120 +41,59 @@ const sdk = new DTunnelSDK({
 });
 
 sdk.on('vpnState', (event) => {
-  console.log(event.payload);
+  console.log('VPN:', event.payload);
 });
 ```
 
-## Uso com React + TypeScript
-
-```tsx
-import { DTunnelSDKProvider, useDTunnelEvent } from 'dtunnel-sdk/react';
-
-function VpnStateLabel() {
-  useDTunnelEvent('vpnState', (event) => {
-    console.log('VPN:', event.payload);
-  });
-
-  return <span>Escutando eventos...</span>;
-}
-
-export function App() {
-  return (
-    <DTunnelSDKProvider options={{ strict: false }}>
-      <VpnStateLabel />
-    </DTunnelSDKProvider>
-  );
-}
-```
-
-## Uso via script (CDN)
+CDN:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.js"></script>
-<script>
-  const sdk = new DTunnelSDK({ strict: false, autoRegisterNativeEvents: true });
-</script>
 ```
 
-## Eventos semanticos
+## Documentacao completa
 
-- `vpnState`
-- `vpnStartedSuccess`
-- `vpnStoppedSuccess`
-- `newLog`
-- `newDefaultConfig`
-- `checkUserStarted`
-- `checkUserResult`
-- `checkUserError`
-- `messageError`
-- `showSuccessToast`
-- `showErrorToast`
-- `notification`
+Toda a documentacao foi movida para `docs/`:
 
-## Estrutura principal
+- [Indice geral](./docs/README.md)
+- [Guia rapido](./docs/getting-started.md)
+- [Referencia da API](./docs/api-reference.md)
+- [Eventos e callbacks](./docs/events.md)
+- [Chamadas diretas sem SDK](./docs/bridge-sem-sdk.md)
 
-- runtime CJS/global: `sdk/dtunnel-sdk.js`
-- runtime ESM: `sdk/dtunnel-sdk.mjs`
-- tipos TS: `sdk/dtunnel-sdk.d.ts`
-- helpers React: `react/index.js`, `react/index.mjs`, `react/index.d.ts`
-- exemplos completos: `examples/`
+## Fluxo oficial (limpo)
 
-## Exemplos completos
-
-- CDN (JavaScript puro): `examples/cdn/index.html`
-- TypeScript (Vite): `examples/typescript`
-- React + TypeScript (Vite): `examples/react-typescript`
-- Guia geral: `examples/README.md`
-
-### Regra para WebView
-
-Sempre gere/entregue **um unico `index.html`** com todo CSS/JS embutido para carregar no WebView.
-
-- CDN: `examples/cdn/index.html` ja atende esse formato.
-- TypeScript e React + TypeScript: rode `npm run build:webview` no exemplo para gerar `webview/index.html`.
-- Atalho na raiz para gerar ambos: `npm run examples:webview`.
-
-Guia rapido:
+Use apenas `init` para gerar projeto pronto:
 
 ```bash
-# TypeScript
-cd examples/typescript
-npm install
-npm run dev
+npx dtunnel-sdk init meu-app --template react-typescript
+cd meu-app
+npm run build:webview
 ```
+
+O resultado final para o WebView sempre sera:
+- `webview/index.html`
+
+## Demos prontas
+
+Tambem deixei demos geradas no repositorio:
+
+- `demos/cdn`
+- `demos/typescript`
+- `demos/react-typescript`
+
+Guia rapido: `demos/README.md`
+
+## Testes
 
 ```bash
-# React + TypeScript
-cd examples/react-typescript
-npm install
-npm run dev
+npm test
+npm run test:typecheck
 ```
 
-## Publicacao de release
-
-Com o repositorio limpo e commitado:
+## Release e publicacao
 
 ```bash
 npm run release:sdk -- --version 1.1.1
-```
-
-## Publicacao no npm
-
-Scripts de release/publicacao sao cross-platform (Linux, macOS e Windows) via Node.js.
-
-```bash
-npm login
 npm run publish:npm
-```
-
-Opcional (tag diferente de `latest`):
-
-```bash
-npm run publish:npm -- --tag next
-```
-
-Dry-run:
-
-```bash
-npm run publish:npm:dry
 ```

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DTunnel SDK - TypeScript Console</title>
+  </head>
+  <body>
+    <div id="app" class="shell">
+      <section class="panel hero">
+        <h1>DTunnel SDK Console - TypeScript</h1>
+        <p>
+          Exemplo completo usando import tipado com TypeScript, painel de
+          telemetria e operacoes de diagnostico.
+        </p>
+
+        <div class="status-row">
+          <span id="sdkStatus" class="chip">SDK: carregando...</span>
+          <span id="bridgeStatus" class="chip">Bridge: verificando...</span>
+          <span id="vpnStatus" class="chip">VPN: desconhecido</span>
+          <span id="lastEventStatus" class="chip">Ultimo evento: nenhum</span>
+        </div>
+
+        <div class="metrics">
+          <article class="metric">
+            <label>Chamadas</label>
+            <strong id="metricCalls">0</strong>
+          </article>
+          <article class="metric">
+            <label>Eventos</label>
+            <strong id="metricEvents">0</strong>
+          </article>
+          <article class="metric">
+            <label>Erros</label>
+            <strong id="metricErrors">0</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Operacoes Rapidas</h2>
+        <div class="button-grid">
+          <button data-action="state">sdk.main.getVpnState()</button>
+          <button data-action="start">sdk.main.startVpn()</button>
+          <button data-action="stop">sdk.main.stopVpn()</button>
+          <button data-action="configDialog">sdk.config.openConfigDialog()</button>
+          <button data-action="menuDialog">sdk.main.showMenuDialog()</button>
+          <button data-action="loggerDialog">sdk.main.showLoggerDialog()</button>
+          <button data-action="configs">sdk.config.getConfigs()</button>
+          <button data-action="default">sdk.config.getDefaultConfig()</button>
+          <button data-action="logs">sdk.main.getLogs()</button>
+          <button data-action="checkUser">sdk.main.startCheckUser()</button>
+          <button data-action="appUpdate">sdk.main.startAppUpdate()</button>
+          <button data-action="appVersion">sdk.android.getAppVersion()</button>
+          <button data-action="network">sdk.android.getNetworkData()</button>
+          <button data-action="snapshot">sdk.createDebugSnapshot()</button>
+          <button data-action="refreshBridge">Atualizar status da bridge</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Operacoes Avancadas</h2>
+
+        <div class="input-grid">
+          <div class="field">
+            <label for="inputAppConfigKey">App Config Key</label>
+            <input id="inputAppConfigKey" value="support_url" />
+          </div>
+          <div class="field">
+            <label for="inputExternalUrl">External URL</label>
+            <input id="inputExternalUrl" value="https://dtunnel.com" />
+          </div>
+          <div class="field">
+            <label for="inputTranslate">Texto para traduzir</label>
+            <input id="inputTranslate" value="vpn_connected" />
+          </div>
+          <div class="field">
+            <label for="inputActionValue">Action Handler</label>
+            <input id="inputActionValue" value="CDN_UPDATE" />
+          </div>
+          <div class="field">
+            <label for="inputNotifyTitle">Notification Title</label>
+            <input id="inputNotifyTitle" value="DTunnel SDK" />
+          </div>
+          <div class="field">
+            <label for="inputNotifyMessage">Notification Message</label>
+            <input
+              id="inputNotifyMessage"
+              value="Mensagem enviada pelo exemplo TypeScript"
+            />
+          </div>
+        </div>
+
+        <div class="button-grid">
+          <button data-action="appConfig">sdk.app.getAppConfig(key)</button>
+          <button data-action="openUrl">sdk.android.openExternalUrl(url)</button>
+          <button data-action="translate">sdk.text.translate(label)</button>
+          <button data-action="notify">sdk.android.sendNotification(...)</button>
+          <button data-action="action">sdk.android.handleAction(value)</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Output</h2>
+        <div class="toolbar">
+          <button data-action="clearOutput">Limpar output</button>
+          <button data-action="copySnapshot">Copiar debug snapshot</button>
+        </div>
+        <pre id="output" class="log"></pre>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

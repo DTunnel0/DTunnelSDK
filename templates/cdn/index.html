@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DTunnel SDK - Console CDN</title>
+  <style>
+    :root {
+      --bg-base: #08101b;
+      --bg-layer: #0d1828;
+      --panel: rgba(13, 24, 40, 0.9);
+      --line: #2a4060;
+      --line-soft: #1f324e;
+      --text: #e9f2ff;
+      --muted: #9db4d1;
+      --ok: #5fdb9b;
+      --warn: #ffd27a;
+      --error: #ff8e8e;
+      --accent: #7ee7d6;
+      --accent-2: #79b8ff;
+      --dt-status-bar-height: 0px;
+      --dt-navigation-bar-height: 0px;
+      --dt-index-width-offset: 0px;
+      --dt-index-height-offset: 0px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Plus Jakarta Sans", "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: calc(100vh - var(--dt-index-height-offset));
+      color: var(--text);
+      background:
+        radial-gradient(1100px 460px at -5% -10%, #1a365b 0%, transparent 60%),
+        radial-gradient(900px 420px at 110% 110%, #224d5f 0%, transparent 60%),
+        linear-gradient(160deg, var(--bg-base), var(--bg-layer));
+      padding: calc(12px + var(--dt-status-bar-height)) 12px
+        calc(12px + var(--dt-navigation-bar-height));
+    }
+
+    .shell {
+      width: calc(100% - var(--dt-index-width-offset));
+      max-width: 100%;
+      margin: 0 auto;
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(160deg, rgba(10, 20, 34, 0.94), var(--panel));
+      box-shadow: 0 18px 42px rgba(2, 8, 18, 0.35);
+      backdrop-filter: blur(6px);
+      padding: 13px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(20px, 6vw, 28px);
+      line-height: 1.1;
+      letter-spacing: 0.01em;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 72ch;
+    }
+
+    .status-row {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: rgba(3, 9, 16, 0.45);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .chip.ok { color: var(--ok); }
+    .chip.warn { color: var(--warn); }
+    .chip.error { color: var(--error); }
+    .chip.accent { color: var(--accent); }
+
+    .metrics {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(4, 10, 18, 0.5);
+    }
+
+    .metric label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: var(--accent-2);
+      letter-spacing: 0.02em;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: linear-gradient(180deg, #0d1c31, #0a1627);
+      color: var(--text);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: border-color 120ms ease, transform 120ms ease;
+      font-weight: 600;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line-soft);
+      border-radius: 10px;
+      background: rgba(2, 7, 14, 0.6);
+      color: var(--text);
+      padding: 10px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(126, 231, 214, 0.16);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .toolbar button {
+      text-align: center;
+      width: 100%;
+    }
+
+    .log {
+      margin: 0;
+      min-height: 330px;
+      max-height: 560px;
+      overflow: auto;
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      background: rgba(2, 8, 16, 0.78);
+      color: #d6e3ff;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    @media (min-width: 640px) {
+      body {
+        padding: calc(16px + var(--dt-status-bar-height)) 16px
+          calc(16px + var(--dt-navigation-bar-height));
+      }
+      .panel {
+        padding: 15px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .button-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .input-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .toolbar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 960px) {
+      body {
+        padding: calc(18px + var(--dt-status-bar-height)) 18px
+          calc(18px + var(--dt-navigation-bar-height));
+      }
+
+      .shell {
+        max-width: min(1180px, calc(100% - var(--dt-index-width-offset)));
+        gap: 14px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .button-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .input-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="panel hero">
+      <h1>DTunnel SDK Console - CDN</h1>
+      <p>
+        Painel unico para testes no WebView: status da bridge, telemetria de chamadas,
+        eventos nativos e acoes de diagnostico.
+      </p>
+
+      <div class="status-row">
+        <span id="sdkStatus" class="chip">SDK: carregando...</span>
+        <span id="bridgeStatus" class="chip">Bridge: verificando...</span>
+        <span id="vpnStatus" class="chip">VPN: desconhecido</span>
+        <span id="lastEventStatus" class="chip">Ultimo evento: nenhum</span>
+      </div>
+
+      <div class="metrics">
+        <article class="metric">
+          <label>Chamadas</label>
+          <strong id="metricCalls">0</strong>
+        </article>
+        <article class="metric">
+          <label>Eventos</label>
+          <strong id="metricEvents">0</strong>
+        </article>
+        <article class="metric">
+          <label>Erros</label>
+          <strong id="metricErrors">0</strong>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Operacoes Rapidas</h2>
+      <div class="button-grid">
+        <button data-action="state">sdk.main.getVpnState()</button>
+        <button data-action="start">sdk.main.startVpn()</button>
+        <button data-action="stop">sdk.main.stopVpn()</button>
+        <button data-action="configDialog">sdk.config.openConfigDialog()</button>
+        <button data-action="menuDialog">sdk.main.showMenuDialog()</button>
+        <button data-action="loggerDialog">sdk.main.showLoggerDialog()</button>
+        <button data-action="configs">sdk.config.getConfigs()</button>
+        <button data-action="default">sdk.config.getDefaultConfig()</button>
+        <button data-action="logs">sdk.main.getLogs()</button>
+        <button data-action="checkUser">sdk.main.startCheckUser()</button>
+        <button data-action="appUpdate">sdk.main.startAppUpdate()</button>
+        <button data-action="appVersion">sdk.android.getAppVersion()</button>
+        <button data-action="network">sdk.android.getNetworkData()</button>
+        <button data-action="snapshot">sdk.createDebugSnapshot()</button>
+        <button data-action="refreshBridge">Atualizar status da bridge</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Operacoes Avancadas</h2>
+
+      <div class="input-grid">
+        <div class="field">
+          <label for="inputAppConfigKey">App Config Key</label>
+          <input id="inputAppConfigKey" value="support_url">
+        </div>
+        <div class="field">
+          <label for="inputExternalUrl">External URL</label>
+          <input id="inputExternalUrl" value="https://dtunnel.com">
+        </div>
+        <div class="field">
+          <label for="inputTranslate">Texto para traduzir</label>
+          <input id="inputTranslate" value="vpn_connected">
+        </div>
+        <div class="field">
+          <label for="inputActionValue">Action Handler</label>
+          <input id="inputActionValue" value="CDN_UPDATE">
+        </div>
+        <div class="field">
+          <label for="inputNotifyTitle">Notification Title</label>
+          <input id="inputNotifyTitle" value="DTunnel SDK">
+        </div>
+        <div class="field">
+          <label for="inputNotifyMessage">Notification Message</label>
+          <input id="inputNotifyMessage" value="Mensagem enviada pelo exemplo CDN">
+        </div>
+      </div>
+
+      <div class="button-grid">
+        <button data-action="appConfig">sdk.app.getAppConfig(key)</button>
+        <button data-action="openUrl">sdk.android.openExternalUrl(url)</button>
+        <button data-action="translate">sdk.text.translate(label)</button>
+        <button data-action="notify">sdk.android.sendNotification(...)</button>
+        <button data-action="action">sdk.android.handleAction(value)</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Output</h2>
+      <div class="toolbar">
+        <button data-action="clearOutput">Limpar output</button>
+        <button data-action="copySnapshot">Copiar debug snapshot</button>
+      </div>
+      <pre id="output" class="log"></pre>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.js"></script>
+  <script>
+    (function () {
+      const output = byId("output");
+      const sdkStatus = byId("sdkStatus");
+      const bridgeStatus = byId("bridgeStatus");
+      const vpnStatus = byId("vpnStatus");
+      const lastEventStatus = byId("lastEventStatus");
+
+      const metricCalls = byId("metricCalls");
+      const metricEvents = byId("metricEvents");
+      const metricErrors = byId("metricErrors");
+
+      const inputAppConfigKey = byId("inputAppConfigKey");
+      const inputExternalUrl = byId("inputExternalUrl");
+      const inputTranslate = byId("inputTranslate");
+      const inputActionValue = byId("inputActionValue");
+      const inputNotifyTitle = byId("inputNotifyTitle");
+      const inputNotifyMessage = byId("inputNotifyMessage");
+
+      const metrics = {
+        calls: 0,
+        events: 0,
+        errors: 0,
+      };
+
+      if (typeof window.DTunnelSDK !== "function") {
+        setChip(sdkStatus, "SDK: nao carregado", "error");
+        log("ERROR", "Nao foi possivel carregar dtunnel-sdk.js");
+        return;
+      }
+
+      const sdk = new window.DTunnelSDK({
+        strict: false,
+        autoRegisterNativeEvents: true,
+      });
+
+      window.__dtunnelSdk = sdk;
+
+      setChip(sdkStatus, "SDK: pronto (v" + sdk.version + ")", "ok");
+      setVpnStatus(sdk.main.getVpnState());
+      applyIndexViewportInsets();
+      refreshBridgeStatus();
+      log("INFO", "Console CDN inicializado");
+
+      sdk.on("error", function (event) {
+        bumpMetric("errors");
+        setChip(lastEventStatus, "Ultimo erro: " + event.error.code, "error");
+        log("SDK_ERROR", event.error.message, event.error.details);
+      });
+
+      sdk.on("nativeEvent", function (event) {
+        bumpMetric("events");
+        setChip(lastEventStatus, "Ultimo evento: " + event.callbackName, "accent");
+        log("EVENT", event.callbackName, event.payload);
+      });
+
+      sdk.on("vpnState", function (event) {
+        setVpnStatus(event.payload);
+      });
+
+      sdk.on("newDefaultConfig", function () {
+        setChip(lastEventStatus, "Ultimo evento: newDefaultConfig", "accent");
+      });
+
+      const buttons = Array.from(
+        document.querySelectorAll("button[data-action]"),
+      );
+
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          const action = button.getAttribute("data-action");
+          if (!action) return;
+
+          switch (action) {
+            case "state": {
+              const state = runCall("sdk.main.getVpnState()", function () {
+                return sdk.main.getVpnState();
+              });
+              setVpnStatus(state);
+              break;
+            }
+            case "start":
+              runCallVoid("sdk.main.startVpn()", function () {
+                sdk.main.startVpn();
+              });
+              break;
+            case "stop":
+              runCallVoid("sdk.main.stopVpn()", function () {
+                sdk.main.stopVpn();
+              });
+              break;
+            case "configDialog":
+              runCallVoid("sdk.config.openConfigDialog()", function () {
+                sdk.config.openConfigDialog();
+              });
+              break;
+            case "menuDialog":
+              runCallVoid("sdk.main.showMenuDialog()", function () {
+                sdk.main.showMenuDialog();
+              });
+              break;
+            case "loggerDialog":
+              runCallVoid("sdk.main.showLoggerDialog()", function () {
+                sdk.main.showLoggerDialog();
+              });
+              break;
+            case "configs":
+              runCall("sdk.config.getConfigs()", function () {
+                return sdk.config.getConfigs();
+              });
+              break;
+            case "default":
+              runCall("sdk.config.getDefaultConfig()", function () {
+                return sdk.config.getDefaultConfig();
+              });
+              break;
+            case "logs":
+              runCall("sdk.main.getLogs()", function () {
+                return sdk.main.getLogs();
+              });
+              break;
+            case "checkUser":
+              runCallVoid("sdk.main.startCheckUser()", function () {
+                sdk.main.startCheckUser();
+              });
+              break;
+            case "appUpdate":
+              runCallVoid("sdk.main.startAppUpdate()", function () {
+                sdk.main.startAppUpdate();
+              });
+              break;
+            case "appVersion":
+              runCall("sdk.android.getAppVersion()", function () {
+                return sdk.android.getAppVersion();
+              });
+              break;
+            case "network":
+              runCall("sdk.android.getNetworkData()", function () {
+                return sdk.android.getNetworkData();
+              });
+              break;
+            case "snapshot":
+              runCall("sdk.createDebugSnapshot()", function () {
+                return sdk.createDebugSnapshot();
+              });
+              break;
+            case "refreshBridge":
+              refreshBridgeStatus();
+              log("INFO", "Bridge status atualizado", sdk.getBridgeAvailability());
+              break;
+            case "appConfig": {
+              const key = (inputAppConfigKey.value || "").trim() || "support_url";
+              runCall('sdk.app.getAppConfig("' + key + '")', function () {
+                return sdk.app.getAppConfig(key);
+              });
+              break;
+            }
+            case "openUrl": {
+              const url = (inputExternalUrl.value || "").trim() || "https://dtunnel.com";
+              runCallVoid('sdk.android.openExternalUrl("' + url + '")', function () {
+                sdk.android.openExternalUrl(url);
+              });
+              break;
+            }
+            case "translate": {
+              const label = (inputTranslate.value || "").trim() || "vpn_connected";
+              runCall('sdk.text.translate("' + label + '")', function () {
+                return sdk.text.translate(label);
+              });
+              break;
+            }
+            case "notify": {
+              const title = (inputNotifyTitle.value || "").trim() || "DTunnel SDK";
+              const message = (inputNotifyMessage.value || "").trim() || "Mensagem de teste";
+              runCallVoid("sdk.android.sendNotification(...)", function () {
+                sdk.android.sendNotification(title, message, null);
+              });
+              break;
+            }
+            case "action": {
+              const actionValue = (inputActionValue.value || "").trim() || "CDN_UPDATE";
+              runCallVoid('sdk.android.handleAction("' + actionValue + '")', function () {
+                sdk.android.handleAction(actionValue);
+              });
+              break;
+            }
+            case "clearOutput":
+              clearOutput();
+              break;
+            case "copySnapshot":
+              copySnapshot();
+              break;
+            default:
+              log("WARN", "Acao desconhecida: " + action);
+          }
+        });
+      });
+
+      function runCall(label, fn) {
+        bumpMetric("calls");
+        const result = fn();
+        log("CALL", label, result);
+        return result;
+      }
+
+      function runCallVoid(label, fn) {
+        bumpMetric("calls");
+        fn();
+        log("CALL", label);
+      }
+
+      function applyIndexViewportInsets() {
+        const statusBarHeight = normalizeInsetPx(sdk.android.getStatusBarHeight());
+        const navigationBarHeight = normalizeInsetPx(
+          sdk.android.getNavigationBarHeight(),
+        );
+        const rootStyle = document.documentElement.style;
+
+        rootStyle.setProperty("--dt-status-bar-height", statusBarHeight + "px");
+        rootStyle.setProperty(
+          "--dt-navigation-bar-height",
+          navigationBarHeight + "px",
+        );
+
+        function applyOffsets() {
+          const isLandscape = window.innerWidth > window.innerHeight;
+          const widthOffset = isLandscape ? navigationBarHeight : 0;
+          const heightOffset = statusBarHeight + (isLandscape ? 0 : navigationBarHeight);
+
+          rootStyle.setProperty("--dt-index-width-offset", widthOffset + "px");
+          rootStyle.setProperty("--dt-index-height-offset", heightOffset + "px");
+        }
+
+        applyOffsets();
+        window.addEventListener("resize", applyOffsets);
+      }
+
+      function refreshBridgeStatus() {
+        const availability = sdk.getBridgeAvailability();
+        const required = ["DtGetVpnState", "DtExecuteVpnStart", "DtExecuteVpnStop"];
+        const missing = required.filter(function (name) {
+          return !availability[name];
+        });
+
+        if (missing.length === 0) {
+          setChip(bridgeStatus, "Bridge: pronta", "ok");
+          return;
+        }
+        setChip(bridgeStatus, "Bridge: parcial (" + missing.join(", ") + ")", "warn");
+      }
+
+      function setVpnStatus(state) {
+        setChip(vpnStatus, "VPN: " + (state || "desconhecido"));
+      }
+
+      function clearOutput() {
+        output.textContent = "";
+        log("INFO", "Output limpo");
+      }
+
+      async function copySnapshot() {
+        const snapshot = JSON.stringify(sdk.createDebugSnapshot(), null, 2);
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+          log("WARN", "Clipboard API indisponivel neste ambiente");
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(snapshot);
+          log("INFO", "Debug snapshot copiado para a area de transferencia");
+        } catch (error) {
+          log("ERROR", "Falha ao copiar snapshot", String(error));
+        }
+      }
+
+      function bumpMetric(metricName) {
+        metrics[metricName] += 1;
+        metricCalls.textContent = String(metrics.calls);
+        metricEvents.textContent = String(metrics.events);
+        metricErrors.textContent = String(metrics.errors);
+      }
+
+      function setChip(element, text, mode) {
+        element.textContent = text;
+        element.classList.remove("ok", "warn", "error", "accent");
+        if (mode) element.classList.add(mode);
+      }
+
+      function log(type, message, data) {
+        const suffix = data === undefined ? "" : " " + safeStringify(data);
+        output.textContent += "[" + new Date().toISOString() + "] [" + type + "] " + message + suffix + "\n";
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function safeStringify(value) {
+        try {
+          if (typeof value === "string") return value;
+          return JSON.stringify(value, null, 2);
+        } catch (_error) {
+          return String(value);
+        }
+      }
+
+      function normalizeInsetPx(value) {
+        if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+          return 0;
+        }
+        return Math.round(value);
+      }
+
+      function byId(id) {
+        var element = document.getElementById(id);
+        if (!element) {
+          throw new Error("Elemento nao encontrado: #" + id);
+        }
+        return element;
+      }
+    })();
+  </script>
+</body>
+</html>
