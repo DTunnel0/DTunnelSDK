@@ -119,7 +119,7 @@ npm run dev
 Com o repositorio limpo e commitado:
 
 ```bash
-npm run release:sdk -- --version 1.1.0
+npm run release:sdk -- --version 1.1.1
 ```
 
 ## Publicacao no npm
