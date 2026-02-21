@@ -1,78 +1,34 @@
-# DTunnel SDK
+# DTunnel SDK (Runtime)
 
-SDK JavaScript para encapsular toda a bridge do WebView:
-- wrappers de todas as APIs JavaScript de bridge (`window.Dt...`)
-- sistema de eventos nativos (`Dt...Event`)
-- parse seguro de payload JSON
-- controle de erro (`strict` ou fallback)
+Arquivos do runtime e tipagem:
 
-Nome publico atual:
-- `DTunnelSDK`
+- `dtunnel-sdk.js`: build principal (script tag + CommonJS)
+- `dtunnel-sdk.mjs`: entrada ESM para bundlers
+- `dtunnel-sdk.d.ts`: tipagem TypeScript
 
-Arquivos:
-- runtime: `sdk/dtunnel-sdk.js`
-- tipagem: `sdk/dtunnel-sdk.d.ts`
-- chamadas diretas sem SDK: `dtunnel-sdk-chamadas-sem-sdk.md`
+## Inicializacao
 
-## Arquitetura
+```ts
+import DTunnelSDK from 'dtunnel-sdk';
 
-O runtime foi organizado em camadas para manter separacao de responsabilidades:
-- `core`: `EventBus`, `DTunnelBridgeError`, utilitarios de parse/validacao
-- `gateway`: `BridgeGateway` (invocacao dos objetos nativos e tratamento de erro)
-- `events`: `NativeEventsAdapter` (registro/desregistro de callbacks Android -> JS)
-- `modules`: `ConfigModule`, `MainModule`, `TextModule`, `AppModule`, `AndroidModule`
-- `facade`: `DTunnelSDK` (API publica unica consumida pelo HTML)
-
-## Inicio rapido
-
-```html
-<script src="https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelSDK@main/sdk/dtunnel-sdk.js"></script>
-<script>
-  const sdk = new DTunnelSDK({
-    strict: false,
-    autoRegisterNativeEvents: true,
-  });
-
-  const state = sdk.main.getVpnState();
-  console.log("VPN state:", state);
-
-  sdk.main.startVpn();
-</script>
+const sdk = new DTunnelSDK({
+  strict: false,
+  autoRegisterNativeEvents: true,
+});
 ```
 
-## Exemplo completo
+## Modulos
 
-Use:
-- `examples/dtunnel-sdk-example.html`
-
-## API principal
-
-Modulos:
 - `sdk.config`
 - `sdk.main`
 - `sdk.text`
 - `sdk.app`
 - `sdk.android`
 
-Eventos:
-- `sdk.on("<evento>", handler)`
-- `sdk.onNativeEvent(handler)`
-- `sdk.onError(handler)`
+## Eventos
 
-Exemplo:
+Use `sdk.on('<evento>', handler)` com:
 
-```js
-const stop = sdk.on("vpnState", (event) => {
-  console.log(event.payload);
-});
-
-// depois
-stop();
-```
-
-## Semantica de eventos
-
-Eventos semanticos suportados:
 - `vpnState`
 - `vpnStartedSuccess`
 - `vpnStoppedSuccess`
@@ -86,32 +42,24 @@ Eventos semanticos suportados:
 - `showErrorToast`
 - `notification`
 
-Cada handler recebe:
+## Erros
 
-```ts
-{
-  name: string | null;
-  callbackName: string;
-  payload: unknown;
-  rawPayload: unknown;
-  args: unknown[];
-  timestamp: number;
-}
-```
+- `strict: true`: lanca excecao (`DTunnelBridgeError`)
+- `strict: false`: retorna `null` e publica evento `error`
 
-## Modo strict
+## Exemplos completos
 
-`strict: true`:
-- erros de objeto/metodo inexistente e falha de execucao lancam excecao.
+- CDN: `examples/cdn/index.html`
+- TypeScript: `examples/typescript`
+- React + TypeScript: `examples/react-typescript`
+- Guia geral: `examples/README.md`
 
-`strict: false` (padrao):
-- retorna `null` na chamada falha
-- publica evento `error`
-- escreve log em `console.error`
+Regra para WebView:
+- entregue sempre um unico `index.html` com CSS/JS embutido.
+- nos exemplos TypeScript/React, use `npm run build:webview` para gerar `webview/index.html`.
+- atalho na raiz: `npm run examples:webview`.
 
-## Boas praticas
-
-- Crie uma unica instancia global do SDK por pagina.
-- Registre listeners antes de acionar comandos criticos.
-- Use metodos `get...Raw()` quando quiser payload sem parse automatico.
-- Use `sdk.destroy()` em teardown da pagina para remover listeners.
+Publicacao npm (raiz do repo):
+- scripts de publicacao/release sao cross-platform (Linux, macOS e Windows).
+- `npm login`
+- `npm run publish:npm`

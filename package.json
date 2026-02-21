@@ -1,0 +1,62 @@
+{
+  "name": "dtunnel-sdk",
+  "version": "1.1.0",
+  "description": "JavaScript/TypeScript SDK for the DTunnel Android WebView bridge.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./sdk/dtunnel-sdk.js",
+  "module": "./sdk/dtunnel-sdk.mjs",
+  "types": "./sdk/dtunnel-sdk.d.ts",
+  "scripts": {
+    "examples:webview": "npm --prefix examples/typescript run build:webview && npm --prefix examples/react-typescript run build:webview",
+    "publish:npm": "node ./scripts/publish-npm.mjs",
+    "publish:npm:dry": "node ./scripts/publish-npm.mjs --dry-run --skip-auth",
+    "release:sdk": "node ./scripts/release-sdk.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./sdk/dtunnel-sdk.d.ts",
+      "import": "./sdk/dtunnel-sdk.mjs",
+      "require": "./sdk/dtunnel-sdk.js",
+      "default": "./sdk/dtunnel-sdk.js"
+    },
+    "./react": {
+      "types": "./react/index.d.ts",
+      "import": "./react/index.mjs",
+      "require": "./react/index.js",
+      "default": "./react/index.js"
+    },
+    "./sdk/dtunnel-sdk.js": "./sdk/dtunnel-sdk.js",
+    "./sdk/dtunnel-sdk.d.ts": "./sdk/dtunnel-sdk.d.ts"
+  },
+  "files": [
+    "sdk",
+    "react",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dtunnel",
+    "sdk",
+    "webview",
+    "android",
+    "vpn",
+    "typescript",
+    "react"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DTunnel0/DTunnelSDK.git"
+  }
+}

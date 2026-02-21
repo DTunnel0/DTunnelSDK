@@ -160,7 +160,9 @@ sdk.main.startVpn();
 ## Arquivos relacionados
 
 - `dtunnel-sdk-chamadas-sem-sdk.md`
-- `examples/dtunnel-sdk-bridge-example.html`
-- `examples/dtunnel-sdk-example.html`
+- `examples/README.md`
+- `examples/cdn/index.html`
+- `examples/typescript`
+- `examples/react-typescript`
 - `sdk/dtunnel-sdk.js`
 - `sdk/dtunnel-sdk.d.ts`

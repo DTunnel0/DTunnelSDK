@@ -298,7 +298,6 @@
     constructor(options) {
       this.windowRef = options.windowRef;
       this.eventBus = options.eventBus;
-      this.gateway = options.gateway;
       this.wrappersByCallback = new Map();
     }
 
@@ -390,14 +389,8 @@
     setConfig(id) {
       this.callVoid('DtSetConfig', 'execute', [id]);
     }
-    getConfigsRaw() {
-      return this.call('DtGetConfigs', 'execute');
-    }
     getConfigs() {
       return this.callJson('DtGetConfigs', 'execute');
-    }
-    getDefaultConfigRaw() {
-      return this.call('DtGetDefaultConfig', 'execute');
     }
     getDefaultConfig() {
       return this.callJson('DtGetDefaultConfig', 'execute');
@@ -432,9 +425,6 @@
   }
 
   class MainModule extends ModuleBase {
-    getLogsRaw() {
-      return this.call('DtGetLogs', 'execute');
-    }
     getLogs() {
       return this.callJson('DtGetLogs', 'execute');
     }
@@ -501,9 +491,6 @@
     goToVoiceInputSettings() {
       this.callVoid('DtGoToVoiceInputSettings', 'execute');
     }
-    getAppConfigRaw(name) {
-      return this.call('DtGetAppConfig', 'execute', [name]);
-    }
     getAppConfig(name) {
       return this.callJson('DtGetAppConfig', 'execute', [name]);
     }
@@ -538,9 +525,6 @@
         message,
         imageUrl || null,
       ]);
-    }
-    getNetworkDataRaw() {
-      return this.call('DtGetNetworkData', 'execute');
     }
     getNetworkData() {
       return this.callJson('DtGetNetworkData', 'execute');
@@ -608,7 +592,6 @@
       this.nativeEvents = new NativeEventsAdapter({
         windowRef: this.window,
         eventBus: this.eventBus,
-        gateway: this.gateway,
       });
 
       this.config = new ConfigModule(this.gateway);
@@ -715,11 +698,19 @@
     }
   }
 
-  DTunnelSDK.VERSION = '1.0.0';
+  DTunnelSDK.VERSION = '1.1.0';
   DTunnelSDK.BRIDGE_OBJECTS = BRIDGE_OBJECTS;
   DTunnelSDK.EVENT_DEFINITIONS = EVENT_DEFINITIONS;
   DTunnelSDK.DTunnelBridgeError = DTunnelBridgeError;
 
   globalScope.DTunnelBridgeError = DTunnelBridgeError;
   globalScope.DTunnelSDK = DTunnelSDK;
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      DTunnelSDK,
+      DTunnelBridgeError,
+      default: DTunnelSDK,
+    };
+  }
 })(typeof window !== 'undefined' ? window : globalThis);

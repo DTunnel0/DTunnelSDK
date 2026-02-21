@@ -1,4 +1,4 @@
-type DTunnelSemanticEventName =
+export type DTunnelSemanticEventName =
   | 'vpnState'
   | 'vpnStartedSuccess'
   | 'vpnStoppedSuccess'
@@ -12,7 +12,7 @@ type DTunnelSemanticEventName =
   | 'showErrorToast'
   | 'notification';
 
-type DTunnelCallbackName =
+export type DTunnelCallbackName =
   | 'DtVpnStateEvent'
   | 'DtVpnStartedSuccessEvent'
   | 'DtVpnStoppedSuccessEvent'
@@ -26,7 +26,159 @@ type DTunnelCallbackName =
   | 'DtErrorToastEvent'
   | 'DtNotificationEvent';
 
-interface DTunnelEventRawPayloadMap {
+export type DTunnelBridgeObjectName =
+  | 'DtSetConfig'
+  | 'DtGetConfigs'
+  | 'DtGetDefaultConfig'
+  | 'DtExecuteDialogConfig'
+  | 'DtUsername'
+  | 'DtPassword'
+  | 'DtGetLocalConfigVersion'
+  | 'DtCDNCount'
+  | 'DtUuid'
+  | 'DtGetLogs'
+  | 'DtClearLogs'
+  | 'DtExecuteVpnStart'
+  | 'DtExecuteVpnStop'
+  | 'DtGetVpnState'
+  | 'DtStartAppUpdate'
+  | 'DtStartCheckUser'
+  | 'DtShowLoggerDialog'
+  | 'DtGetLocalIP'
+  | 'DtAirplaneActivate'
+  | 'DtAirplaneDeactivate'
+  | 'DtAirplaneState'
+  | 'DtAppIsCurrentAssistant'
+  | 'DtShowMenuDialog'
+  | 'DtGetNetworkName'
+  | 'DtGetPingResult'
+  | 'DtTranslateText'
+  | 'DtCleanApp'
+  | 'DtGoToVoiceInputSettings'
+  | 'DtGetAppConfig'
+  | 'DtIgnoreBatteryOptimizations'
+  | 'DtStartApnActivity'
+  | 'DtStartNetworkActivity'
+  | 'DtStartWebViewActivity'
+  | 'DtStartRadioInfoActivity'
+  | 'DtGetDeviceID'
+  | 'DtSendNotification'
+  | 'DtGetNetworkData'
+  | 'DtGetStatusBarHeight'
+  | 'DtGetNavigationBarHeight'
+  | 'DtOpenExternalUrl'
+  | 'DtStartHotSpotService'
+  | 'DtStopHotSpotService'
+  | 'DtGetStatusHotSpotService'
+  | 'DtGetNetworkDownloadBytes'
+  | 'DtGetNetworkUploadBytes'
+  | 'DtAppVersion'
+  | 'DtActionHandler'
+  | 'DtCloseApp';
+
+export type DTunnelVPNState =
+  | 'CONNECTED'
+  | 'DISCONNECTED'
+  | 'CONNECTING'
+  | 'STOPPING'
+  | 'NO_NETWORK'
+  | 'AUTH'
+  | 'AUTH_FAILED';
+
+export type DTunnelAirplaneState = 'ACTIVE' | 'INACTIVE';
+export type DTunnelAssistantState = 'ENABLED' | 'DISABLED';
+export type DTunnelHotSpotStatus = 'RUNNING' | 'STOPPED';
+
+export type DTunnelAction =
+  | 'CDN_UPDATE'
+  | 'CONFIG_UPDATE'
+  | 'CATEGORY_UPDATE'
+  | 'APP_CONFIG_UPDATE'
+  | 'APP_TEXT_UPDATE'
+  | 'APP_START_VPN'
+  | 'APP_RECONNECT_VPN'
+  | 'APP_RESTART_VPN'
+  | 'APP_STOP_VPN'
+  | 'FCM_TOKEN';
+
+export interface DTunnelNotification {
+  title: string;
+  message: string;
+  image: string;
+}
+
+export interface DTunnelMessage {
+  title: string;
+  content: string;
+}
+
+export interface DTunnelCheckUserResult {
+  username: string;
+  count_connections: string;
+  limit_connections: string;
+  expiration_date: string;
+  expiration_days: string;
+}
+
+export type DTunnelLogEntry = Record<string, string>;
+
+export interface DTunnelConfigListItem {
+  id: number;
+  name: string;
+  description: string | null;
+  mode: string;
+  sorter: number;
+  icon: string | null;
+}
+
+export interface DTunnelCategory {
+  id: number;
+  name: string;
+  sorter: number;
+  color: string;
+  items: DTunnelConfigListItem[];
+}
+
+export interface DTunnelDefaultConfig {
+  id: number;
+  category_id: number;
+  name: string;
+  description: string;
+  mode: string;
+  sorter: number;
+  icon: string;
+}
+
+export interface DTunnelNetworkData {
+  type_name: string | null;
+  extra_info: string | null;
+  type: string | null;
+  reason: string | null;
+  detailed_state: string | null;
+}
+
+export interface DTunnelAppConfigValue<T = unknown> {
+  value: T | null;
+}
+
+export type DTunnelParsedJson<T> = T | string | null;
+
+export interface DTunnelEventArgsMap {
+  vpnState: [state: string | null];
+  vpnStartedSuccess: [];
+  vpnStoppedSuccess: [];
+  newLog: [];
+  configClick: [];
+  checkUserStarted: [];
+  checkUserResult: [json: string | null];
+  checkUserError: [message: string | null];
+  messageError: [json: string | null];
+  showSuccessToast: [message: string | null];
+  showErrorToast: [message: string | null];
+  notification: [json: string | null];
+}
+
+export interface DTunnelEventRawPayloadMap {
   vpnState: string | null;
   vpnStartedSuccess: undefined;
   vpnStoppedSuccess: undefined;
@@ -41,37 +193,22 @@ interface DTunnelEventRawPayloadMap {
   notification: string | null;
 }
 
-interface DTunnelEventArgsMap {
-  vpnState: [state: string | null];
-  vpnStartedSuccess: [];
-  vpnStoppedSuccess: [];
-  newLog: [];
-  configClick: [];
-  checkUserStarted: [];
-  checkUserResult: [dataJson: string | null];
-  checkUserError: [message: string | null];
-  messageError: [dataJson: string | null];
-  showSuccessToast: [message: string | null];
-  showErrorToast: [message: string | null];
-  notification: [dataJson: string | null];
-}
-
-interface DTunnelEventPayloadMap {
-  vpnState: string | null;
-  vpnStartedSuccess: void;
-  vpnStoppedSuccess: void;
-  newLog: void;
-  configClick: void;
-  checkUserStarted: void;
-  checkUserResult: unknown | null;
+export interface DTunnelEventPayloadMap {
+  vpnState: DTunnelVPNState | null;
+  vpnStartedSuccess: undefined;
+  vpnStoppedSuccess: undefined;
+  newLog: undefined;
+  configClick: undefined;
+  checkUserStarted: undefined;
+  checkUserResult: DTunnelParsedJson<DTunnelCheckUserResult>;
   checkUserError: string | null;
-  messageError: unknown | null;
+  messageError: DTunnelParsedJson<DTunnelMessage>;
   showSuccessToast: string | null;
   showErrorToast: string | null;
-  notification: unknown | null;
+  notification: DTunnelParsedJson<DTunnelNotification>;
 }
 
-interface DTunnelEventCallbackMap {
+export interface DTunnelEventCallbackMap {
   vpnState: 'DtVpnStateEvent';
   vpnStartedSuccess: 'DtVpnStartedSuccessEvent';
   vpnStoppedSuccess: 'DtVpnStoppedSuccessEvent';
@@ -86,7 +223,22 @@ interface DTunnelEventCallbackMap {
   notification: 'DtNotificationEvent';
 }
 
-interface DTunnelNativeEventEnvelope<
+export interface DTunnelCallbackToEventMap {
+  DtVpnStateEvent: 'vpnState';
+  DtVpnStartedSuccessEvent: 'vpnStartedSuccess';
+  DtVpnStoppedSuccessEvent: 'vpnStoppedSuccess';
+  DtNewLogEvent: 'newLog';
+  DtNewDefaultConfigEvent: 'configClick';
+  DtCheckUserStartedEvent: 'checkUserStarted';
+  DtCheckUserResultEvent: 'checkUserResult';
+  DtCheckUserErrorEvent: 'checkUserError';
+  DtMessageErrorEvent: 'messageError';
+  DtSuccessToastEvent: 'showSuccessToast';
+  DtErrorToastEvent: 'showErrorToast';
+  DtNotificationEvent: 'notification';
+}
+
+export interface DTunnelNativeEventEnvelope<
   TPayload = unknown,
   TRawPayload = unknown,
   TCallbackName extends string = string,
@@ -100,26 +252,40 @@ interface DTunnelNativeEventEnvelope<
   timestamp: number;
 }
 
-type DTunnelNativeCallbackArgsMap = {
-  DtVpnStateEvent: DTunnelEventArgsMap['vpnState'];
-  DtVpnStartedSuccessEvent: DTunnelEventArgsMap['vpnStartedSuccess'];
-  DtVpnStoppedSuccessEvent: DTunnelEventArgsMap['vpnStoppedSuccess'];
-  DtNewLogEvent: DTunnelEventArgsMap['newLog'];
-  DtNewDefaultConfigEvent: DTunnelEventArgsMap['configClick'];
-  DtCheckUserStartedEvent: DTunnelEventArgsMap['checkUserStarted'];
-  DtCheckUserResultEvent: DTunnelEventArgsMap['checkUserResult'];
-  DtCheckUserErrorEvent: DTunnelEventArgsMap['checkUserError'];
-  DtMessageErrorEvent: DTunnelEventArgsMap['messageError'];
-  DtSuccessToastEvent: DTunnelEventArgsMap['showSuccessToast'];
-  DtErrorToastEvent: DTunnelEventArgsMap['showErrorToast'];
-  DtNotificationEvent: DTunnelEventArgsMap['notification'];
+export type DTunnelSemanticEventEnvelope<E extends DTunnelSemanticEventName> =
+  DTunnelNativeEventEnvelope<
+    DTunnelEventPayloadMap[E],
+    DTunnelEventRawPayloadMap[E],
+    DTunnelEventCallbackMap[E],
+    DTunnelEventArgsMap[E]
+  > & {
+    name: E;
+  };
+
+export type DTunnelAnySemanticEventEnvelope = {
+  [K in DTunnelSemanticEventName]: DTunnelSemanticEventEnvelope<K>;
+}[DTunnelSemanticEventName];
+
+export type DTunnelNativeEventByCallback<K extends DTunnelCallbackName> =
+  DTunnelSemanticEventEnvelope<DTunnelCallbackToEventMap[K]>;
+
+export type DTunnelAnyNativeEventEnvelope =
+  | DTunnelAnySemanticEventEnvelope
+  | (DTunnelNativeEventEnvelope<unknown, unknown, string, unknown[]> & {
+      name: null;
+    });
+
+export type DTunnelNativeCallbackArgsMap = {
+  [K in DTunnelCallbackName]: DTunnelEventArgsMap[DTunnelCallbackToEventMap[K]];
 };
 
-type DTunnelNativeCallbackHandlerMap = {
-  [K in DTunnelCallbackName]: (...args: DTunnelNativeCallbackArgsMap[K]) => void;
+export type DTunnelNativeCallbackHandlerMap = {
+  [K in DTunnelCallbackName]: (
+    ...args: DTunnelNativeCallbackArgsMap[K]
+  ) => void;
 };
 
-interface DTunnelBridgeErrorDetails {
+export interface DTunnelBridgeErrorDetails {
   objectName?: string;
   methodName?: string;
   callbackName?: string;
@@ -128,45 +294,52 @@ interface DTunnelBridgeErrorDetails {
   [key: string]: unknown;
 }
 
-declare class DTunnelBridgeError extends Error {
+export type DTunnelBridgeErrorCode =
+  | 'BRIDGE_OBJECT_NOT_FOUND'
+  | 'BRIDGE_METHOD_NOT_FOUND'
+  | 'BRIDGE_CALL_FAILED';
+
+export declare class DTunnelBridgeError extends Error {
   name: 'DTunnelBridgeError';
-  code: string;
+  code: DTunnelBridgeErrorCode | string;
   details: DTunnelBridgeErrorDetails;
   constructor(
-    code: string,
+    code: DTunnelBridgeErrorCode | string,
     message: string,
     details?: DTunnelBridgeErrorDetails,
   );
 }
 
-interface DTunnelErrorEvent {
+export interface DTunnelErrorEvent {
   name: 'error';
   error: DTunnelBridgeError;
   timestamp: number;
 }
 
-interface DTunnelSDKOptions {
-  window?: Window;
+export interface DTunnelBridgeHost {
+  [key: string]: unknown;
+}
+
+export interface DTunnelSDKOptions {
+  window?: DTunnelBridgeHost;
   strict?: boolean;
   logger?: Pick<Console, 'error'>;
   autoRegisterNativeEvents?: boolean;
 }
 
-interface DTunnelDebugSnapshot {
+export interface DTunnelDebugSnapshot {
   strict: boolean;
   autoRegisterNativeEvents: boolean;
   ready: boolean;
-  bridgeAvailability: Record<string, boolean>;
-  registeredNativeCallbacks: string[];
+  bridgeAvailability: Record<DTunnelBridgeObjectName, boolean>;
+  registeredNativeCallbacks: DTunnelCallbackName[];
   timestamp: number;
 }
 
-declare class DTunnelConfigModule {
+export declare class DTunnelConfigModule {
   setConfig(id: number): void;
-  getConfigsRaw(): string | null;
-  getConfigs<T = unknown>(): T | null;
-  getDefaultConfigRaw(): string | null;
-  getDefaultConfig<T = unknown>(): T | null;
+  getConfigs(): DTunnelCategory[] | null;
+  getDefaultConfig(): DTunnelDefaultConfig | null;
   openConfigDialog(): void;
   getUsername(): string | null;
   setUsername(value: string): void;
@@ -178,36 +351,34 @@ declare class DTunnelConfigModule {
   setUuid(value: string): void;
 }
 
-declare class DTunnelMainModule {
-  getLogsRaw(): string | null;
-  getLogs<T = unknown>(): T | null;
+export declare class DTunnelMainModule {
+  getLogs(): DTunnelLogEntry[] | null;
   clearLogs(): void;
   startVpn(): void;
   stopVpn(): void;
-  getVpnState(): string | null;
+  getVpnState(): DTunnelVPNState | null;
   startAppUpdate(): void;
   startCheckUser(): void;
   showLoggerDialog(): void;
   getLocalIp(): string | null;
   activateAirplaneMode(): void;
   deactivateAirplaneMode(): void;
-  getAirplaneState(): 'ACTIVE' | 'INACTIVE' | null;
-  getAssistantState(): 'ENABLED' | 'DISABLED' | null;
+  getAirplaneState(): DTunnelAirplaneState | null;
+  getAssistantState(): DTunnelAssistantState | null;
   isCurrentAssistantEnabled(): boolean;
   showMenuDialog(): void;
   getNetworkName(): string | null;
   getPingResult(): string | null;
 }
 
-declare class DTunnelTextModule {
+export declare class DTunnelTextModule {
   translate(label: string | null): string | null;
 }
 
-declare class DTunnelAppModule {
+export declare class DTunnelAppModule {
   cleanApp(): void;
   goToVoiceInputSettings(): void;
-  getAppConfigRaw(name: string): string | null;
-  getAppConfig<T = unknown>(name: string): T | null;
+  getAppConfig<T = unknown>(name: string): DTunnelAppConfigValue<T> | null;
   ignoreBatteryOptimizations(): void;
   startApnActivity(): void;
   startNetworkActivity(): void;
@@ -215,58 +386,42 @@ declare class DTunnelAppModule {
   startRadioInfoActivity(): void;
 }
 
-declare class DTunnelAndroidModule {
+export declare class DTunnelAndroidModule {
   getDeviceId(): string | null;
   sendNotification(
     title: string,
     message: string,
     imageUrl?: string | null,
   ): void;
-  getNetworkDataRaw(): string | null;
-  getNetworkData<T = unknown>(): T | null;
+  getNetworkData(): DTunnelNetworkData | null;
   getStatusBarHeight(): number | null;
   getNavigationBarHeight(): number | null;
   openExternalUrl(url: string): void;
   startHotSpotService(port?: number): void;
   stopHotSpotService(): void;
-  getHotSpotStatus(): 'RUNNING' | 'STOPPED' | null;
+  getHotSpotStatus(): DTunnelHotSpotStatus | null;
   isHotSpotRunning(): boolean;
   getNetworkDownloadBytes(): number | null;
   getNetworkUploadBytes(): number | null;
   getAppVersion(): string | null;
-  handleAction(action: string): void;
+  handleAction(action: DTunnelAction | (string & {})): void;
   closeApp(): void;
 }
 
-type DTunnelEventListener<TPayload = unknown> = (
-  event: DTunnelNativeEventEnvelope<TPayload>,
-) => void;
-
-type DTunnelSemanticEventEnvelope<E extends DTunnelSemanticEventName> =
-  DTunnelNativeEventEnvelope<
-    DTunnelEventPayloadMap[E],
-    DTunnelEventRawPayloadMap[E],
-    DTunnelEventCallbackMap[E],
-    DTunnelEventArgsMap[E]
-  > & {
-    name: E;
-  };
-
-type DTunnelAnySemanticEventEnvelope = {
-  [K in DTunnelSemanticEventName]: DTunnelSemanticEventEnvelope<K>;
-}[DTunnelSemanticEventName];
-
-declare class DTunnelSDK {
+export declare class DTunnelSDK {
   static VERSION: string;
-  static BRIDGE_OBJECTS: readonly string[];
+  static BRIDGE_OBJECTS: readonly DTunnelBridgeObjectName[];
   static EVENT_DEFINITIONS: Record<
     DTunnelSemanticEventName,
-    { callbacks: string[]; parseAsJson: boolean }
+    {
+      callbacks: readonly DTunnelCallbackName[];
+      parseAsJson: boolean;
+    }
   >;
   static DTunnelBridgeError: typeof DTunnelBridgeError;
 
   readonly version: string;
-  readonly window: Window;
+  readonly window: DTunnelBridgeHost;
   readonly strict: boolean;
   readonly autoRegisterNativeEvents: boolean;
 
@@ -286,11 +441,18 @@ declare class DTunnelSDK {
     eventName: 'nativeEvent',
     listener: (event: DTunnelAnySemanticEventEnvelope) => void,
   ): () => void;
+  on<E extends DTunnelCallbackName>(
+    eventName: `native:${E}`,
+    listener: (event: DTunnelNativeEventByCallback<E>) => void,
+  ): () => void;
   on(
     eventName: `native:${string}`,
-    listener: (event: DTunnelAnySemanticEventEnvelope) => void,
+    listener: (event: DTunnelAnyNativeEventEnvelope) => void,
   ): () => void;
-  on(eventName: 'error', listener: (event: DTunnelErrorEvent) => void): () => void;
+  on(
+    eventName: 'error',
+    listener: (event: DTunnelErrorEvent) => void,
+  ): () => void;
   on(eventName: string, listener: (event: unknown) => void): () => void;
 
   once<E extends DTunnelSemanticEventName>(
@@ -301,11 +463,18 @@ declare class DTunnelSDK {
     eventName: 'nativeEvent',
     listener: (event: DTunnelAnySemanticEventEnvelope) => void,
   ): () => void;
+  once<E extends DTunnelCallbackName>(
+    eventName: `native:${E}`,
+    listener: (event: DTunnelNativeEventByCallback<E>) => void,
+  ): () => void;
   once(
     eventName: `native:${string}`,
-    listener: (event: DTunnelAnySemanticEventEnvelope) => void,
+    listener: (event: DTunnelAnyNativeEventEnvelope) => void,
   ): () => void;
-  once(eventName: 'error', listener: (event: DTunnelErrorEvent) => void): () => void;
+  once(
+    eventName: 'error',
+    listener: (event: DTunnelErrorEvent) => void,
+  ): () => void;
   once(eventName: string, listener: (event: unknown) => void): () => void;
 
   off<E extends DTunnelSemanticEventName>(
@@ -316,21 +485,27 @@ declare class DTunnelSDK {
     eventName: 'nativeEvent',
     listener: (event: DTunnelAnySemanticEventEnvelope) => void,
   ): void;
+  off<E extends DTunnelCallbackName>(
+    eventName: `native:${E}`,
+    listener: (event: DTunnelNativeEventByCallback<E>) => void,
+  ): void;
   off(
     eventName: `native:${string}`,
-    listener: (event: DTunnelAnySemanticEventEnvelope) => void,
+    listener: (event: DTunnelAnyNativeEventEnvelope) => void,
   ): void;
   off(eventName: 'error', listener: (event: DTunnelErrorEvent) => void): void;
   off(eventName: string, listener: (event: unknown) => void): void;
   removeAllListeners(eventName?: string): void;
 
-  onNativeEvent(listener: (event: DTunnelAnySemanticEventEnvelope) => void): () => void;
+  onNativeEvent(
+    listener: (event: DTunnelAnySemanticEventEnvelope) => void,
+  ): () => void;
   onError(listener: (event: DTunnelErrorEvent) => void): () => void;
 
   getBridgeObject<T = unknown>(objectName: string): T | undefined;
   hasBridgeObject(objectName: string): boolean;
-  getBridgeAvailability(): Record<string, boolean>;
-  isReady(requiredObjects?: string[]): boolean;
+  getBridgeAvailability(): Record<DTunnelBridgeObjectName, boolean>;
+  isReady(requiredObjects?: readonly DTunnelBridgeObjectName[]): boolean;
 
   call<T = unknown>(
     objectName: string,
@@ -351,10 +526,13 @@ declare class DTunnelSDK {
   destroy(): void;
 }
 
+export type DTunnelSDKConstructor = typeof DTunnelSDK;
+export type DTunnelBridgeErrorConstructor = typeof DTunnelBridgeError;
+
 declare global {
   interface Window {
-    DTunnelSDK: typeof DTunnelSDK;
-    DTunnelBridgeError: typeof DTunnelBridgeError;
+    DTunnelSDK: DTunnelSDKConstructor;
+    DTunnelBridgeError: DTunnelBridgeErrorConstructor;
     DtVpnStateEvent?: DTunnelNativeCallbackHandlerMap['DtVpnStateEvent'];
     DtVpnStartedSuccessEvent?: DTunnelNativeCallbackHandlerMap['DtVpnStartedSuccessEvent'];
     DtVpnStoppedSuccessEvent?: DTunnelNativeCallbackHandlerMap['DtVpnStoppedSuccessEvent'];
@@ -368,4 +546,9 @@ declare global {
     DtErrorToastEvent?: DTunnelNativeCallbackHandlerMap['DtErrorToastEvent'];
     DtNotificationEvent?: DTunnelNativeCallbackHandlerMap['DtNotificationEvent'];
   }
+
+  var DTunnelSDK: DTunnelSDKConstructor;
+  var DTunnelBridgeError: DTunnelBridgeErrorConstructor;
 }
+
+export default DTunnelSDK;

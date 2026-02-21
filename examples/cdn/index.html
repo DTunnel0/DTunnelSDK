@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DTunnel SDK Example</title>
+  <title>DTunnel SDK - Exemplo CDN Completo</title>
   <style>
     :root {
-      --bg: #101828;
-      --card: #0b1220;
-      --card-2: #111827;
-      --line: #233044;
-      --text: #dbe7ff;
-      --muted: #92a3bc;
-      --accent: #4cc9f0;
-      --ok: #38b000;
-      --warn: #ffb703;
-      --bad: #ef476f;
+      --bg: #0c1220;
+      --panel: #111a2f;
+      --panel-2: #17233f;
+      --line: #2c3c66;
+      --text: #d8e3ff;
+      --muted: #9fb0d6;
+      --ok: #47c17a;
+      --warn: #ffc453;
+      --error: #ff6464;
+      --accent: #66d9ef;
     }
 
     * {
@@ -28,8 +28,8 @@
       min-height: 100vh;
       color: var(--text);
       background:
-        radial-gradient(1200px 600px at 95% -10%, #1f3b73 0%, transparent 60%),
-        radial-gradient(900px 400px at -10% 110%, #0f766e 0%, transparent 60%),
+        radial-gradient(1000px 420px at 0% 0%, #21407b 0%, transparent 60%),
+        radial-gradient(800px 380px at 100% 100%, #1f4f5e 0%, transparent 60%),
         var(--bg);
       padding: 18px;
     }
@@ -38,19 +38,19 @@
       max-width: 1100px;
       margin: 0 auto;
       display: grid;
-      gap: 14px;
+      gap: 12px;
     }
 
     .card {
-      background: linear-gradient(160deg, var(--card), var(--card-2));
       border: 1px solid var(--line);
       border-radius: 14px;
+      background: linear-gradient(160deg, var(--panel), var(--panel-2));
       padding: 14px;
     }
 
     h1 {
       margin: 0;
-      font-size: 23px;
+      font-size: 22px;
     }
 
     h2 {
@@ -60,11 +60,11 @@
     }
 
     p {
-      margin: 10px 0 0;
+      margin: 8px 0 0;
       color: var(--muted);
     }
 
-    .state {
+    .pills {
       margin-top: 12px;
       display: flex;
       flex-wrap: wrap;
@@ -73,24 +73,16 @@
 
     .pill {
       border: 1px solid var(--line);
-      border-radius: 100px;
+      border-radius: 999px;
       padding: 6px 10px;
       font-size: 12px;
       color: var(--muted);
       background: rgba(0, 0, 0, 0.2);
     }
 
-    .pill.ok {
-      color: var(--ok);
-    }
-
-    .pill.warn {
-      color: var(--warn);
-    }
-
-    .pill.bad {
-      color: var(--bad);
-    }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .error { color: var(--error); }
 
     .grid {
       display: grid;
@@ -101,27 +93,27 @@
     button {
       border: 1px solid var(--line);
       border-radius: 10px;
+      background: #0a1429;
       color: var(--text);
-      background: #0a1323;
       padding: 10px;
       cursor: pointer;
-      transition: transform 120ms ease, border-color 120ms ease;
+      transition: 120ms ease;
     }
 
     button:hover {
-      transform: translateY(-1px);
       border-color: var(--accent);
+      transform: translateY(-1px);
     }
 
     pre {
       margin: 0;
-      min-height: 290px;
-      max-height: 460px;
+      min-height: 280px;
+      max-height: 480px;
       overflow: auto;
       border: 1px solid var(--line);
       border-radius: 10px;
-      background: #030916;
-      color: #c5d6f3;
+      background: #030a16;
+      color: #c8d8ff;
       padding: 12px;
       font-size: 12px;
       white-space: pre-wrap;
@@ -132,9 +124,9 @@
 <body>
   <div class="shell">
     <section class="card">
-      <h1>DTunnel SDK Integration Example</h1>
-      <p>Exemplo completo usando o SDK wrapper da bridge nativa do WebView.</p>
-      <div class="state">
+      <h1>DTunnel SDK - JavaScript via CDN</h1>
+      <p>Exemplo completo com monitor de eventos, diagnostico de bridge e chamadas principais.</p>
+      <div class="pills">
         <span id="sdkStatus" class="pill">SDK: carregando...</span>
         <span id="bridgeStatus" class="pill">Bridge: verificando...</span>
         <span id="vpnStatus" class="pill">VPN: desconhecido</span>
@@ -148,10 +140,11 @@
         <button id="btnStartVpn">sdk.main.startVpn()</button>
         <button id="btnStopVpn">sdk.main.stopVpn()</button>
         <button id="btnGetConfigs">sdk.config.getConfigs()</button>
+        <button id="btnGetDefault">sdk.config.getDefaultConfig()</button>
         <button id="btnGetLogs">sdk.main.getLogs()</button>
-        <button id="btnClearLogs">sdk.main.clearLogs()</button>
         <button id="btnCheckUser">sdk.main.startCheckUser()</button>
-        <button id="btnAppVersion">sdk.android.getAppVersion()</button>
+        <button id="btnGetVersion">sdk.android.getAppVersion()</button>
+        <button id="btnGetNetwork">sdk.android.getNetworkData()</button>
         <button id="btnSnapshot">sdk.createDebugSnapshot()</button>
       </div>
     </section>
@@ -180,20 +173,22 @@
         try {
           if (typeof value === "string") return value;
           return JSON.stringify(value, null, 2);
-        } catch (error) {
+        } catch (_error) {
           return String(value);
         }
       }
 
-      if (typeof window.DTunnelSDK !== "function") {
-        sdkStatus.textContent = "SDK: nao carregado";
-        sdkStatus.className = "pill bad";
-        log("ERROR", "Arquivo do SDK nao foi carregado.");
-        return;
+      function markClass(element, mode) {
+        element.classList.remove("ok", "warn", "error");
+        if (mode) element.classList.add(mode);
       }
 
-      sdkStatus.textContent = "SDK: pronto";
-      sdkStatus.className = "pill ok";
+      if (typeof window.DTunnelSDK !== "function") {
+        sdkStatus.textContent = "SDK: nao carregado";
+        markClass(sdkStatus, "error");
+        log("ERROR", "Nao foi possivel carregar dtunnel-sdk.js");
+        return;
+      }
 
       const sdk = new window.DTunnelSDK({
         strict: false,
@@ -202,86 +197,95 @@
 
       window.__dtunnelSdk = sdk;
 
+      sdkStatus.textContent = "SDK: pronto (v" + sdk.version + ")";
+      markClass(sdkStatus, "ok");
+
       function refreshBridgeStatus() {
         const availability = sdk.getBridgeAvailability();
         const required = ["DtGetVpnState", "DtExecuteVpnStart", "DtExecuteVpnStop"];
-        const missing = required.filter((name) => !availability[name]);
+        const missing = required.filter(function (name) {
+          return !availability[name];
+        });
 
         if (missing.length === 0) {
           bridgeStatus.textContent = "Bridge: pronta";
-          bridgeStatus.className = "pill ok";
+          markClass(bridgeStatus, "ok");
           return;
         }
 
         bridgeStatus.textContent = "Bridge: parcial (" + missing.join(", ") + ")";
-        bridgeStatus.className = "pill warn";
+        markClass(bridgeStatus, "warn");
       }
 
       function setVpnStatus(state) {
         vpnStatus.textContent = "VPN: " + (state || "desconhecido");
       }
 
-      sdk.on("error", (event) => {
+      sdk.on("error", function (event) {
         log("SDK_ERROR", event.error.message, event.error.details);
       });
 
-      sdk.on("nativeEvent", (event) => {
+      sdk.on("nativeEvent", function (event) {
         log("EVENT", event.callbackName, event.payload);
       });
 
-      sdk.on("vpnState", (event) => {
+      sdk.on("vpnState", function (event) {
         setVpnStatus(event.payload);
       });
 
-      document.getElementById("btnGetVpnState").addEventListener("click", () => {
+      document.getElementById("btnGetVpnState").addEventListener("click", function () {
         const state = sdk.main.getVpnState();
         setVpnStatus(state);
         log("CALL", "sdk.main.getVpnState()", state);
       });
 
-      document.getElementById("btnStartVpn").addEventListener("click", () => {
+      document.getElementById("btnStartVpn").addEventListener("click", function () {
         sdk.main.startVpn();
         log("CALL", "sdk.main.startVpn()");
       });
 
-      document.getElementById("btnStopVpn").addEventListener("click", () => {
+      document.getElementById("btnStopVpn").addEventListener("click", function () {
         sdk.main.stopVpn();
         log("CALL", "sdk.main.stopVpn()");
       });
 
-      document.getElementById("btnGetConfigs").addEventListener("click", () => {
-        const configs = sdk.config.getConfigs();
-        log("CALL", "sdk.config.getConfigs()", configs);
+      document.getElementById("btnGetConfigs").addEventListener("click", function () {
+        const result = sdk.config.getConfigs();
+        log("CALL", "sdk.config.getConfigs()", result);
       });
 
-      document.getElementById("btnGetLogs").addEventListener("click", () => {
-        const logs = sdk.main.getLogs();
-        log("CALL", "sdk.main.getLogs()", logs);
+      document.getElementById("btnGetDefault").addEventListener("click", function () {
+        const result = sdk.config.getDefaultConfig();
+        log("CALL", "sdk.config.getDefaultConfig()", result);
       });
 
-      document.getElementById("btnClearLogs").addEventListener("click", () => {
-        sdk.main.clearLogs();
-        log("CALL", "sdk.main.clearLogs()");
+      document.getElementById("btnGetLogs").addEventListener("click", function () {
+        const result = sdk.main.getLogs();
+        log("CALL", "sdk.main.getLogs()", result);
       });
 
-      document.getElementById("btnCheckUser").addEventListener("click", () => {
+      document.getElementById("btnCheckUser").addEventListener("click", function () {
         sdk.main.startCheckUser();
         log("CALL", "sdk.main.startCheckUser()");
       });
 
-      document.getElementById("btnAppVersion").addEventListener("click", () => {
-        const version = sdk.android.getAppVersion();
-        log("CALL", "sdk.android.getAppVersion()", version);
+      document.getElementById("btnGetVersion").addEventListener("click", function () {
+        const result = sdk.android.getAppVersion();
+        log("CALL", "sdk.android.getAppVersion()", result);
       });
 
-      document.getElementById("btnSnapshot").addEventListener("click", () => {
+      document.getElementById("btnGetNetwork").addEventListener("click", function () {
+        const result = sdk.android.getNetworkData();
+        log("CALL", "sdk.android.getNetworkData()", result);
+      });
+
+      document.getElementById("btnSnapshot").addEventListener("click", function () {
         log("DEBUG", "sdk.createDebugSnapshot()", sdk.createDebugSnapshot());
       });
 
       refreshBridgeStatus();
-      const initialState = sdk.main.getVpnState();
-      setVpnStatus(initialState);
-      log("INFO", "SDK inicializado");
+      setVpnStatus(sdk.main.getVpnState());
+      log("INFO", "Exemplo CDN inicializado");
     })();
   </script>
 </body>
