@@ -105,7 +105,7 @@ const configs = sdk.config.getConfigs();
 | `vpnStartedSuccess` | `DtVpnStartedSuccessEvent()` | sem payload |
 | `vpnStoppedSuccess` | `DtVpnStoppedSuccessEvent()` | sem payload |
 | `newLog` | `DtNewLogEvent()` | sem payload |
-| `configClick` | `DtNewDefaultConfigEvent()` | sem payload |
+| `newDefaultConfig` | `DtNewDefaultConfigEvent()` | sem payload |
 | `checkUserStarted` | `DtCheckUserStartedEvent()` | sem payload |
 | `checkUserResult` | `DtCheckUserResultEvent(dataJson)` | `string JSON | null` |
 | `checkUserError` | `DtCheckUserErrorEvent(message)` | `string | null` |

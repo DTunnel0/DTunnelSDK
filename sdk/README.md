@@ -33,7 +33,7 @@ Use `sdk.on('<evento>', handler)` com:
 - `vpnStartedSuccess`
 - `vpnStoppedSuccess`
 - `newLog`
-- `configClick`
+- `newDefaultConfig`
 - `checkUserStarted`
 - `checkUserResult`
 - `checkUserError`

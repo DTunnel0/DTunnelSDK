@@ -66,7 +66,7 @@ export function App() {
 - `vpnStartedSuccess`
 - `vpnStoppedSuccess`
 - `newLog`
-- `configClick`
+- `newDefaultConfig`
 - `checkUserStarted`
 - `checkUserResult`
 - `checkUserError`

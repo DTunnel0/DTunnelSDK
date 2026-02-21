@@ -3,7 +3,7 @@ export type DTunnelSemanticEventName =
   | 'vpnStartedSuccess'
   | 'vpnStoppedSuccess'
   | 'newLog'
-  | 'configClick'
+  | 'newDefaultConfig'
   | 'checkUserStarted'
   | 'checkUserResult'
   | 'checkUserError'
@@ -168,7 +168,7 @@ export interface DTunnelEventArgsMap {
   vpnStartedSuccess: [];
   vpnStoppedSuccess: [];
   newLog: [];
-  configClick: [];
+  newDefaultConfig: [];
   checkUserStarted: [];
   checkUserResult: [json: string | null];
   checkUserError: [message: string | null];
@@ -183,7 +183,7 @@ export interface DTunnelEventRawPayloadMap {
   vpnStartedSuccess: undefined;
   vpnStoppedSuccess: undefined;
   newLog: undefined;
-  configClick: undefined;
+  newDefaultConfig: undefined;
   checkUserStarted: undefined;
   checkUserResult: string | null;
   checkUserError: string | null;
@@ -198,7 +198,7 @@ export interface DTunnelEventPayloadMap {
   vpnStartedSuccess: undefined;
   vpnStoppedSuccess: undefined;
   newLog: undefined;
-  configClick: undefined;
+  newDefaultConfig: undefined;
   checkUserStarted: undefined;
   checkUserResult: DTunnelParsedJson<DTunnelCheckUserResult>;
   checkUserError: string | null;
@@ -213,7 +213,7 @@ export interface DTunnelEventCallbackMap {
   vpnStartedSuccess: 'DtVpnStartedSuccessEvent';
   vpnStoppedSuccess: 'DtVpnStoppedSuccessEvent';
   newLog: 'DtNewLogEvent';
-  configClick: 'DtNewDefaultConfigEvent';
+  newDefaultConfig: 'DtNewDefaultConfigEvent';
   checkUserStarted: 'DtCheckUserStartedEvent';
   checkUserResult: 'DtCheckUserResultEvent';
   checkUserError: 'DtCheckUserErrorEvent';
@@ -228,7 +228,7 @@ export interface DTunnelCallbackToEventMap {
   DtVpnStartedSuccessEvent: 'vpnStartedSuccess';
   DtVpnStoppedSuccessEvent: 'vpnStoppedSuccess';
   DtNewLogEvent: 'newLog';
-  DtNewDefaultConfigEvent: 'configClick';
+  DtNewDefaultConfigEvent: 'newDefaultConfig';
   DtCheckUserStartedEvent: 'checkUserStarted';
   DtCheckUserResultEvent: 'checkUserResult';
   DtCheckUserErrorEvent: 'checkUserError';

@@ -70,7 +70,7 @@
       callbacks: ['DtNewLogEvent'],
       parseAsJson: false,
     },
-    configClick: {
+    newDefaultConfig: {
       callbacks: ['DtNewDefaultConfigEvent'],
       parseAsJson: false,
     },
