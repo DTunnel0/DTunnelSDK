@@ -54,7 +54,7 @@ export function App() {
 ## Uso via script (CDN)
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelSDK@main/sdk/dtunnel-sdk.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.js"></script>
 <script>
   const sdk = new DTunnelSDK({ strict: false, autoRegisterNativeEvents: true });
 </script>

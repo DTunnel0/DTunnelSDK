@@ -3,7 +3,7 @@
 Arquivo principal: `examples/cdn/index.html`
 
 Este exemplo usa:
-- `<script src="https://cdn.jsdelivr.net/gh/DTunnel0/DTunnelSDK@main/sdk/dtunnel-sdk.js"></script>`
+- `<script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.js"></script>`
 - API completa do SDK (`sdk.config`, `sdk.main`, `sdk.app`, `sdk.android`)
 - monitoramento de eventos (`vpnState`, `nativeEvent`, `error`)
 - formato final ja compativel com WebView: arquivo unico `index.html`
