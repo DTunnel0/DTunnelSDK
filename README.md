@@ -67,10 +67,45 @@ Browser puro (sem bundler):
 Nota:
 - No WebView real, o simulador nao instala por padrao se detectar bridge nativa.
 
-CDN:
+## Exemplo CDN (completo)
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.js"></script>
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DTunnel SDK - CDN</title>
+  </head>
+  <body>
+    <button id="btnState">Ler estado VPN</button>
+    <pre id="output"></pre>
+
+    <script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.simulator.js"></script>
+    <script>
+      const simulator = window.DTunnelSDKSimulator.installDTunnelSDKSimulator();
+      const sdk = new window.DTunnelSDK({
+        strict: false,
+        autoRegisterNativeEvents: true,
+      });
+
+      const output = document.getElementById('output');
+      const btnState = document.getElementById('btnState');
+
+      sdk.on('vpnState', (event) => {
+        output.textContent += `vpnState: ${event.payload}\n`;
+      });
+
+      btnState.addEventListener('click', () => {
+        const state = sdk.main.getVpnState();
+        output.textContent += `getVpnState(): ${state}\n`;
+      });
+
+      simulator.emit('vpnState', 'CONNECTED');
+    </script>
+  </body>
+</html>
 ```
 
 ## Documentacao completa
