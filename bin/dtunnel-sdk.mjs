@@ -372,6 +372,34 @@ function installDependencies(projectDir, packageManager) {
   };
 }
 
+function tryInitGitRepository(projectDir) {
+  const result = spawnSync('git', ['init'], {
+    cwd: projectDir,
+    stdio: 'pipe',
+  });
+
+  if (result.status === 0) {
+    return { ok: true, skipped: false, reason: null };
+  }
+
+  if (result.error && result.error.code === 'ENOENT') {
+    return {
+      ok: false,
+      skipped: true,
+      reason: 'git nao encontrado no PATH',
+    };
+  }
+
+  return {
+    ok: false,
+    skipped: false,
+    reason:
+      (result.stderr && String(result.stderr).trim()) ||
+      (result.error && result.error.message) ||
+      `codigo de saida ${String(result.status ?? 'desconhecido')}`,
+  };
+}
+
 function runScriptCommand(packageManager, scriptName) {
   if (packageManager === 'yarn') {
     return `yarn ${scriptName}`;
@@ -500,6 +528,14 @@ async function runInit(parsed) {
           `\nNao foi possivel instalar dependencias automaticamente (${detail}).`,
         );
         console.warn(`Rode manualmente: cd ${projectName} && ${packageManager} install`);
+      }
+    }
+
+    const gitDir = path.join(targetDir, '.git');
+    if (!(await pathExists(gitDir))) {
+      const gitInit = tryInitGitRepository(targetDir);
+      if (!gitInit.ok && !gitInit.skipped) {
+        console.warn(`\nNao foi possivel inicializar repositorio Git (${gitInit.reason}).`);
       }
     }
 

@@ -698,7 +698,7 @@
     }
   }
 
-  DTunnelSDK.VERSION = '1.2.0';
+  DTunnelSDK.VERSION = '1.2.1';
   DTunnelSDK.BRIDGE_OBJECTS = BRIDGE_OBJECTS;
   DTunnelSDK.EVENT_DEFINITIONS = EVENT_DEFINITIONS;
   DTunnelSDK.DTunnelBridgeError = DTunnelBridgeError;

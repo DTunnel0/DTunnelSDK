@@ -13,6 +13,10 @@ const cliPath = path.join(repoRoot, 'bin', 'dtunnel-sdk.mjs');
 const repoPkg = JSON.parse(
   readFileSync(path.join(repoRoot, 'package.json'), 'utf8'),
 ) as { version: string };
+const gitAvailable =
+  spawnSync('git', ['--version'], {
+    encoding: 'utf8',
+  }).status === 0;
 
 function runInit(tempRoot: string, projectName: string, template: string) {
   return spawnSync(
@@ -48,6 +52,7 @@ test('cli init cria template typescript com build:android local', () => {
     const pkgPath = path.join(projectDir, 'package.json');
     const scriptPath = path.join(projectDir, 'scripts', 'build-android-html.mjs');
     const mainPath = path.join(projectDir, 'src', 'main.ts');
+    const gitDirPath = path.join(projectDir, '.git');
     const gitignorePath = path.join(projectDir, '.gitignore');
     const npmignorePath = path.join(projectDir, '.npmignore');
 
@@ -66,6 +71,9 @@ test('cli init cria template typescript com build:android local', () => {
     assert.ok(statSync(mainPath).isFile());
     assert.equal(existsSync(gitignorePath), true);
     assert.equal(existsSync(npmignorePath), false);
+    if (gitAvailable) {
+      assert.ok(statSync(gitDirPath).isDirectory());
+    }
     const gitignore = readFileSync(gitignorePath, 'utf8');
     assert.match(gitignore, /(^|\r?\n)node_modules(\r?\n|$)/);
     assert.match(gitignore, /(^|\r?\n)dist(\r?\n|$)/);
@@ -89,6 +97,7 @@ test('cli init cria template cdn com script build:android', () => {
     const pkgPath = path.join(projectDir, 'package.json');
     const copyScriptPath = path.join(projectDir, 'scripts', 'build-android-html.mjs');
     const indexPath = path.join(projectDir, 'index.html');
+    const gitDirPath = path.join(projectDir, '.git');
     const gitignorePath = path.join(projectDir, '.gitignore');
     const npmignorePath = path.join(projectDir, '.npmignore');
 
@@ -102,6 +111,9 @@ test('cli init cria template cdn com script build:android', () => {
     assert.ok(statSync(copyScriptPath).isFile());
     assert.equal(existsSync(gitignorePath), true);
     assert.equal(existsSync(npmignorePath), false);
+    if (gitAvailable) {
+      assert.ok(statSync(gitDirPath).isDirectory());
+    }
     const gitignore = readFileSync(gitignorePath, 'utf8');
     assert.match(gitignore, /(^|\r?\n)node_modules(\r?\n|$)/);
     assert.match(gitignore, /(^|\r?\n)dist(\r?\n|$)/);
