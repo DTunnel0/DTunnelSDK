@@ -1,6 +1,6 @@
 {
   "name": "dtunnel-sdk",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "JavaScript/TypeScript SDK for the DTunnel Android WebView bridge.",
   "license": "MIT",
   "type": "commonjs",
@@ -24,6 +24,12 @@
       "require": "./sdk/dtunnel-sdk.js",
       "default": "./sdk/dtunnel-sdk.js"
     },
+    "./simulator": {
+      "types": "./sdk/dtunnel-sdk.simulator.d.ts",
+      "import": "./sdk/dtunnel-sdk.simulator.mjs",
+      "require": "./sdk/dtunnel-sdk.simulator.js",
+      "default": "./sdk/dtunnel-sdk.simulator.js"
+    },
     "./react": {
       "types": "./react/index.d.ts",
       "import": "./react/index.mjs",
@@ -31,7 +37,10 @@
       "default": "./react/index.js"
     },
     "./sdk/dtunnel-sdk.js": "./sdk/dtunnel-sdk.js",
-    "./sdk/dtunnel-sdk.d.ts": "./sdk/dtunnel-sdk.d.ts"
+    "./sdk/dtunnel-sdk.d.ts": "./sdk/dtunnel-sdk.d.ts",
+    "./sdk/dtunnel-sdk.simulator.js": "./sdk/dtunnel-sdk.simulator.js",
+    "./sdk/dtunnel-sdk.simulator.mjs": "./sdk/dtunnel-sdk.simulator.mjs",
+    "./sdk/dtunnel-sdk.simulator.d.ts": "./sdk/dtunnel-sdk.simulator.d.ts"
   },
   "files": [
     "bin",

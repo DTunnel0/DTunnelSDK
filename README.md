@@ -45,6 +45,28 @@ sdk.on('vpnState', (event) => {
 });
 ```
 
+## Simulador rapido (sem Android)
+
+```ts
+import DTunnelSDK from 'dtunnel-sdk';
+import { installDTunnelSDKSimulator } from 'dtunnel-sdk/simulator';
+
+const simulator = installDTunnelSDKSimulator();
+const sdk = new DTunnelSDK({ strict: false, autoRegisterNativeEvents: true });
+
+simulator.emit('vpnState', 'CONNECTED');
+```
+
+Browser puro (sem bundler):
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.simulator.js"></script>
+```
+
+Nota:
+- No WebView real, o simulador nao instala por padrao se detectar bridge nativa.
+
 CDN:
 
 ```html

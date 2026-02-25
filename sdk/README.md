@@ -5,6 +5,9 @@ Arquivos do runtime e tipagem:
 - `dtunnel-sdk.js`: build principal (script tag + CommonJS)
 - `dtunnel-sdk.mjs`: entrada ESM para bundlers
 - `dtunnel-sdk.d.ts`: tipagem TypeScript
+- `dtunnel-sdk.simulator.js`: simulador da bridge (`window.Dt...`)
+- `dtunnel-sdk.simulator.d.ts`: tipagem TypeScript do simulador
+- `dtunnel-sdk.simulator.mjs`: entrada ESM do simulador
 
 ## Inicializacao
 
@@ -15,6 +18,42 @@ const sdk = new DTunnelSDK({
   strict: false,
   autoRegisterNativeEvents: true,
 });
+```
+
+## Simulador da bridge no navegador
+
+### Uso
+
+```ts
+import DTunnelSDK from 'dtunnel-sdk';
+import { installDTunnelSDKSimulator } from 'dtunnel-sdk/simulator';
+
+const simulator = installDTunnelSDKSimulator();
+const sdk = new DTunnelSDK({ strict: false, autoRegisterNativeEvents: true });
+
+sdk.main.startVpn(); // usa simulador
+simulator.emit('vpnState', 'CONNECTED'); // dispara callback nativo
+```
+
+### Regra de WebView real
+
+Por padrao, `installDTunnelSDKSimulator()` nao instala se detectar bridge nativa no `window` (nao sobrescreve `window.Dt...` no app real).
+
+### Script tag (CDN/browser puro)
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.simulator.js"></script>
+```
+
+Depois disso:
+
+```html
+<script>
+  const sdk = new window.DTunnelSDK({ strict: false, autoRegisterNativeEvents: true });
+  const simulator = window.DTunnelSDKSimulator.installDTunnelSDKSimulator();
+  simulator.emit('vpnState', 'CONNECTED');
+</script>
 ```
 
 ## Modulos
