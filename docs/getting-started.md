@@ -8,7 +8,7 @@ npm install dtunnel-sdk
 
 ## Bootstrap de projeto (CLI)
 
-Crie um projeto novo com template e script de WebView pronto:
+Crie um projeto novo com template e script de build para Android pronto:
 
 ```bash
 npx dtunnel-sdk init
@@ -82,18 +82,18 @@ export function App() {
 </script>
 ```
 
-## Regra de WebView: sempre um unico `index.html`
+## Build para Android em arquivo unico
 
-Para publicar no WebView Android, entregue um arquivo unico com CSS/JS embutidos.
+Para publicar no Android, o artefato final e um unico `dist/build.html`.
 
-- Todo projeto criado pelo CLI gera `webview/index.html`.
+- Todo projeto criado pelo CLI inclui `npm run build:android`.
 
 Fluxo recomendado:
 
 ```bash
 npx dtunnel-sdk init meu-app --template react-typescript
 cd meu-app
-npm run build:webview
+npm run build:android
 ```
 
 ## Comportamento de erro (`strict`)

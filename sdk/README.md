@@ -94,11 +94,9 @@ Use `sdk.on('<evento>', handler)` com:
 - Guia geral: `examples/README.md`
 
 Regra para WebView:
-- entregue sempre um unico `index.html` com CSS/JS embutido.
-- nos exemplos TypeScript/React, use `npm run build:webview` para gerar `webview/index.html`.
-- atalho na raiz: `npm run examples:webview`.
+- use `npm run build:android` para gerar `dist/build.html` (arquivo unico).
 
 Publicacao npm (raiz do repo):
 - scripts de publicacao/release sao cross-platform (Linux, macOS e Windows).
 - `npm login`
-- `npm run publish:npm`
+- `npm run release:npm`

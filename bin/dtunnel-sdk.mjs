@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 const TEMPLATES_DIR = path.join(ROOT_DIR, 'templates');
 const PKG_JSON_PATH = path.join(ROOT_DIR, 'package.json');
+const REQUIRED_GITIGNORE_ENTRIES = ['node_modules', 'dist'];
 
 const TEMPLATE_CHOICES = [
   { id: 'react-typescript', label: 'React + TypeScript (Vite)' },
@@ -258,6 +259,67 @@ async function copyDirRecursive(sourceDir, targetDir) {
   }
 }
 
+async function normalizeIgnoreFiles(targetDir) {
+  const entries = await fs.readdir(targetDir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    await normalizeIgnoreFiles(path.join(targetDir, entry.name));
+  }
+
+  const gitignorePath = path.join(targetDir, '.gitignore');
+  const npmignorePath = path.join(targetDir, '.npmignore');
+  const plainIgnorePath = path.join(targetDir, 'gitignore');
+  const hasGitignore = await pathExists(gitignorePath);
+
+  if (!hasGitignore && (await pathExists(npmignorePath))) {
+    await fs.rename(npmignorePath, gitignorePath);
+  } else if (!hasGitignore && (await pathExists(plainIgnorePath))) {
+    await fs.rename(plainIgnorePath, gitignorePath);
+  }
+
+  if ((await pathExists(gitignorePath)) && (await pathExists(npmignorePath))) {
+    await fs.rm(npmignorePath, { force: true });
+  }
+
+  if ((await pathExists(gitignorePath)) && (await pathExists(plainIgnorePath))) {
+    await fs.rm(plainIgnorePath, { force: true });
+  }
+}
+
+async function ensureRootGitignoreDefaults(targetDir) {
+  const gitignorePath = path.join(targetDir, '.gitignore');
+  const hasGitignore = await pathExists(gitignorePath);
+
+  if (!hasGitignore) {
+    await fs.writeFile(
+      gitignorePath,
+      `${REQUIRED_GITIGNORE_ENTRIES.join('\n')}\n`,
+      'utf8',
+    );
+    return;
+  }
+
+  const raw = await fs.readFile(gitignorePath, 'utf8');
+  const normalized = raw.replace(/\r\n/g, '\n');
+  const existing = new Set(
+    normalized
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0),
+  );
+  const missing = REQUIRED_GITIGNORE_ENTRIES.filter((line) => !existing.has(line));
+
+  if (missing.length === 0) return;
+
+  let next = normalized;
+  if (next.length > 0 && !next.endsWith('\n')) {
+    next += '\n';
+  }
+  next += `${missing.join('\n')}\n`;
+  await fs.writeFile(gitignorePath, next, 'utf8');
+}
+
 function isTextLikeFile(fileName) {
   if (fileName === '.gitignore') return true;
   const ext = path.extname(fileName);
@@ -338,16 +400,16 @@ function printNextSteps({
   }
 
   if (template === 'cdn') {
-    console.log(`  ${runScriptCommand(packageManager, 'build:webview')}`);
-    console.log('\nArquivo final para WebView:');
-    console.log(`  ${path.join(projectName, 'webview', 'index.html')}`);
+    console.log(`  ${runScriptCommand(packageManager, 'build:android')}`);
+    console.log('\nArquivo final para Android (unico):');
+    console.log(`  ${path.join(projectName, 'dist', 'build.html')}`);
     return;
   }
 
   console.log(`  ${runScriptCommand(packageManager, 'dev')}`);
-  console.log(`  ${runScriptCommand(packageManager, 'build:webview')}`);
-  console.log('\nArquivo final para WebView:');
-  console.log(`  ${path.join(projectName, 'webview', 'index.html')}`);
+  console.log(`  ${runScriptCommand(packageManager, 'build:android')}`);
+  console.log('\nArquivo final para Android (unico):');
+  console.log(`  ${path.join(projectName, 'dist', 'build.html')}`);
 }
 
 async function runInit(parsed) {
@@ -402,6 +464,8 @@ async function runInit(parsed) {
     const targetDir = path.resolve(process.cwd(), projectName);
     await ensureTargetDirectory(targetDir, parsed.force);
     await copyDirRecursive(templateDir, targetDir);
+    await normalizeIgnoreFiles(targetDir);
+    await ensureRootGitignoreDefaults(targetDir);
 
     const sdkVersion = await readSdkVersion();
     await applyReplacements(targetDir, {

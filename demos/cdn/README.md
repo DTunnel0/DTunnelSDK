@@ -5,11 +5,11 @@ Projeto pronto para uso com CDN.
 ## Comandos
 
 ```bash
-npm run build:webview
+npm run build:android
 ```
 
 Saida:
-- `webview/index.html`
+- `dist/build.html`
 
 ## Uso
 

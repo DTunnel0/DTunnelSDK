@@ -6,9 +6,8 @@ Demos prontas geradas pelo CLI oficial (`dtunnel-sdk init`):
 - `demos/typescript`
 - `demos/react-typescript`
 
-Cada demo ja vem com `build:webview` para gerar um unico arquivo final:
-
-- `webview/index.html`
+Cada demo ja vem com `build:android` para gerar um arquivo final unico:
+- `dist/build.html`
 
 ## Como usar
 
@@ -17,7 +16,7 @@ CDN:
 ```bash
 cd demos/cdn
 npm install
-npm run build:webview
+npm run build:android
 ```
 
 TypeScript:
@@ -26,7 +25,7 @@ TypeScript:
 cd demos/typescript
 npm install
 npm run dev
-npm run build:webview
+npm run build:android
 ```
 
 React + TypeScript:
@@ -35,5 +34,5 @@ React + TypeScript:
 cd demos/react-typescript
 npm install
 npm run dev
-npm run build:webview
+npm run build:android
 ```

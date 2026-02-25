@@ -1,14 +1,14 @@
 # DTunnel SDK - Template React + TypeScript
 
-Projeto React + TypeScript (Vite) pronto com `build:webview`.
+Projeto React + TypeScript (Vite) pronto com `build:android`.
 
 ## Comandos
 
 ```bash
 npm install
 npm run dev
-npm run build:webview
+npm run build:android
 ```
 
 Saida:
-- `webview/index.html`
+- `dist/build.html` (arquivo unico)

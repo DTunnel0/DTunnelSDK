@@ -5,6 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "node -e \"console.log('Abra index.html no navegador ou WebView.')\"",
-    "build:webview": "node ./scripts/copy-webview.mjs"
+    "build:android": "node ./scripts/build-android-html.mjs"
   }
 }

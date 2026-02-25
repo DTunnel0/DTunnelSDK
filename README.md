@@ -10,7 +10,7 @@ npm install dtunnel-sdk
 
 ## Inicializar projeto pronto
 
-Crie um projeto novo com template e `build:webview` ja configurado:
+Crie um projeto novo com template e `build:android` ja configurado:
 
 ```bash
 npx dtunnel-sdk init
@@ -96,11 +96,11 @@ Use apenas `init` para gerar projeto pronto:
 ```bash
 npx dtunnel-sdk init meu-app --template react-typescript
 cd meu-app
-npm run build:webview
+npm run build:android
 ```
 
-O resultado final para o WebView sempre sera:
-- `webview/index.html`
+O resultado final para Android e um arquivo unico:
+- `dist/build.html`
 
 ## Demos prontas
 
@@ -123,5 +123,5 @@ npm run test:typecheck
 
 ```bash
 npm run release:sdk -- --version X.Y.Z
-npm run publish:npm
+npm run release:npm
 ```

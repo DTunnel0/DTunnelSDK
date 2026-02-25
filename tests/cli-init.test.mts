@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -33,7 +33,7 @@ function runInit(tempRoot: string, projectName: string, template: string) {
   );
 }
 
-test('cli init cria template typescript com build:webview local', () => {
+test('cli init cria template typescript com build:android local', () => {
   const tempRoot = mkdtempSync(path.join(tmpdir(), 'dtunnel-cli-ts-'));
 
   try {
@@ -46,8 +46,10 @@ test('cli init cria template typescript com build:webview local', () => {
 
     const projectDir = path.join(tempRoot, 'my-ts-app');
     const pkgPath = path.join(projectDir, 'package.json');
-    const scriptPath = path.join(projectDir, 'scripts', 'build-webview-html.mjs');
+    const scriptPath = path.join(projectDir, 'scripts', 'build-android-html.mjs');
     const mainPath = path.join(projectDir, 'src', 'main.ts');
+    const gitignorePath = path.join(projectDir, '.gitignore');
+    const npmignorePath = path.join(projectDir, '.npmignore');
 
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as {
       scripts: Record<string, string>;
@@ -55,18 +57,24 @@ test('cli init cria template typescript com build:webview local', () => {
     };
 
     assert.equal(
-      pkg.scripts['build:webview'],
-      'npm run build && node ./scripts/build-webview-html.mjs --dist dist --out webview/index.html',
+      pkg.scripts['build:android'],
+      'npm run build && node ./scripts/build-android-html.mjs --dist dist --out dist/build.html',
     );
+    assert.equal(pkg.scripts['build:webview'], undefined);
     assert.equal(pkg.dependencies['dtunnel-sdk'], `^${repoPkg.version}`);
     assert.ok(statSync(scriptPath).isFile());
     assert.ok(statSync(mainPath).isFile());
+    assert.equal(existsSync(gitignorePath), true);
+    assert.equal(existsSync(npmignorePath), false);
+    const gitignore = readFileSync(gitignorePath, 'utf8');
+    assert.match(gitignore, /(^|\r?\n)node_modules(\r?\n|$)/);
+    assert.match(gitignore, /(^|\r?\n)dist(\r?\n|$)/);
   } finally {
     rmSync(tempRoot, { recursive: true, force: true });
   }
 });
 
-test('cli init cria template cdn com script build:webview', () => {
+test('cli init cria template cdn com script build:android', () => {
   const tempRoot = mkdtempSync(path.join(tmpdir(), 'dtunnel-cli-cdn-'));
 
   try {
@@ -79,16 +87,24 @@ test('cli init cria template cdn com script build:webview', () => {
 
     const projectDir = path.join(tempRoot, 'my-cdn-app');
     const pkgPath = path.join(projectDir, 'package.json');
-    const copyScriptPath = path.join(projectDir, 'scripts', 'copy-webview.mjs');
+    const copyScriptPath = path.join(projectDir, 'scripts', 'build-android-html.mjs');
     const indexPath = path.join(projectDir, 'index.html');
+    const gitignorePath = path.join(projectDir, '.gitignore');
+    const npmignorePath = path.join(projectDir, '.npmignore');
 
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as {
       scripts: Record<string, string>;
     };
     const indexHtml = readFileSync(indexPath, 'utf8');
 
-    assert.equal(pkg.scripts['build:webview'], 'node ./scripts/copy-webview.mjs');
+    assert.equal(pkg.scripts['build:android'], 'node ./scripts/build-android-html.mjs');
+    assert.equal(pkg.scripts['build:webview'], undefined);
     assert.ok(statSync(copyScriptPath).isFile());
+    assert.equal(existsSync(gitignorePath), true);
+    assert.equal(existsSync(npmignorePath), false);
+    const gitignore = readFileSync(gitignorePath, 'utf8');
+    assert.match(gitignore, /(^|\r?\n)node_modules(\r?\n|$)/);
+    assert.match(gitignore, /(^|\r?\n)dist(\r?\n|$)/);
     assert.match(indexHtml, /cdn\.jsdelivr\.net\/npm\/dtunnel-sdk@latest/);
   } finally {
     rmSync(tempRoot, { recursive: true, force: true });

@@ -1,6 +1,6 @@
 {
   "name": "dtunnel-sdk",
-  "version": "1.1.5",
+  "version": "1.2.0",
   "description": "JavaScript/TypeScript SDK for the DTunnel Android WebView bridge.",
   "license": "MIT",
   "type": "commonjs",
@@ -13,8 +13,7 @@
   "scripts": {
     "test": "node --import tsx --test ./tests/*.test.mts",
     "test:typecheck": "tsc -p ./tests/tsconfig.json --noEmit",
-    "publish:npm": "node ./scripts/publish-npm.mjs",
-    "publish:npm:dry": "node ./scripts/publish-npm.mjs --dry-run --skip-auth",
+    "release:npm": "node ./scripts/release-npm.mjs",
     "release:sdk": "node ./scripts/release-sdk.mjs"
   },
   "exports": {

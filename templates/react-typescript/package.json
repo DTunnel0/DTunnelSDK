@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:webview": "npm run build && node ./scripts/build-webview-html.mjs --dist dist --out webview/index.html",
+    "build:android": "npm run build && node ./scripts/build-android-html.mjs --dist dist --out dist/build.html",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

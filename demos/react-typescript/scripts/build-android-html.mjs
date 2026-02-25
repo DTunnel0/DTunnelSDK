@@ -6,7 +6,7 @@ import process from 'node:process';
 function parseArgs(argv) {
   const options = {
     dist: 'dist',
-    out: 'webview/index.html',
+    out: 'dist/build.html',
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -116,6 +116,23 @@ function removeLocalModulePreloads(html) {
   });
 }
 
+async function keepOnlyOutputFile(outputPath) {
+  const outputDir = path.dirname(outputPath);
+  const entries = await fs.readdir(outputDir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const entryPath = path.join(outputDir, entry.name);
+    if (path.resolve(entryPath) === outputPath) continue;
+
+    if (entry.isDirectory()) {
+      await fs.rm(entryPath, { recursive: true, force: true });
+      continue;
+    }
+
+    await fs.rm(entryPath, { force: true });
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const cwd = process.cwd();
@@ -126,7 +143,7 @@ async function main() {
   const outputDir = path.dirname(outputPath);
 
   if (!(await fileExists(inputPath))) {
-    console.error(`[build-html] index nao encontrado: ${inputPath}`);
+    console.error(`[build-android] index nao encontrado: ${inputPath}`);
     process.exit(1);
   }
 
@@ -137,11 +154,12 @@ async function main() {
 
   await fs.mkdir(outputDir, { recursive: true });
   await fs.writeFile(outputPath, html, 'utf8');
+  await keepOnlyOutputFile(outputPath);
 
-  console.log(`[build-html] Gerado: ${outputPath}`);
+  console.log(`[build-android] Gerado: ${outputPath}`);
 }
 
 main().catch((error) => {
-  console.error('[build-html] Falha:', error);
+  console.error('[build-android] Falha:', error);
   process.exit(1);
 });
