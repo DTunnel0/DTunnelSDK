@@ -24,12 +24,23 @@ jobs:
           mkdir -p dist/release
 
           cp sdk/dtunnel-sdk.js dist/release/
+          cp sdk/dtunnel-sdk.mjs dist/release/
           cp sdk/dtunnel-sdk.d.ts dist/release/
+          cp sdk/dtunnel-sdk.simulator.js dist/release/
+          cp sdk/dtunnel-sdk.simulator.mjs dist/release/
+          cp sdk/dtunnel-sdk.simulator.d.ts dist/release/
           cp sdk/README.md dist/release/
 
           (
             cd dist/release
-            zip -q "dtunnel-sdk-${VERSION}.zip" dtunnel-sdk.js dtunnel-sdk.d.ts README.md
+            zip -q "dtunnel-sdk-${VERSION}.zip" \
+              dtunnel-sdk.js \
+              dtunnel-sdk.mjs \
+              dtunnel-sdk.d.ts \
+              dtunnel-sdk.simulator.js \
+              dtunnel-sdk.simulator.mjs \
+              dtunnel-sdk.simulator.d.ts \
+              README.md
           )
 
           shasum -a 256 "dist/release/dtunnel-sdk-${VERSION}.zip" > "dist/release/dtunnel-sdk-${VERSION}.zip.sha256"
@@ -41,7 +52,11 @@ jobs:
           generate_release_notes: true
           files: |
             dist/release/dtunnel-sdk.js
+            dist/release/dtunnel-sdk.mjs
             dist/release/dtunnel-sdk.d.ts
+            dist/release/dtunnel-sdk.simulator.js
+            dist/release/dtunnel-sdk.simulator.mjs
+            dist/release/dtunnel-sdk.simulator.d.ts
             dist/release/README.md
             dist/release/*.zip
             dist/release/*.sha256
