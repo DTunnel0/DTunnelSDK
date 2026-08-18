@@ -1,223 +1,287 @@
-# Referencia da API
+# Referência Completa da API - DTunnel SDK
 
-Fonte de verdade: `sdk/dtunnel-sdk.d.ts`.
+Esta é a documentação técnica detalhada e exaustiva de todas as funções, métodos, atributos, interfaces e bridges que compõem o **DTunnel SDK**.
 
-## Construtor
+---
+
+## Índice de Módulos
+- [DTunnelSDK (Classe Core)](#dtunnelsdk-classe-core)
+- [sdk.main (VPN, Conexão e Anúncios)](#sdkmain-vpn-conexão-e-anúncios)
+- [sdk.config (Categorias, Servidores e Importação)](#sdkconfig-categorias-servidores-e-importação)
+- [sdk.android (Hardware e Sistema Android)](#sdkandroid-hardware-e-sistema-android)
+- [sdk.app (Telas e Configurações Globais)](#sdkapp-telas-e-configurações-globais)
+- [sdk.text (Internacionalização Dinâmica)](#sdktext-internacionalização-dinâmica)
+- [Interfaces TypeScript & Schemas](#interfaces-typescript--schemas)
+
+---
+
+## DTunnelSDK (Classe Core)
+
+### Construtor
+```ts
+new DTunnelSDK(options?: DTunnelSDKOptions): DTunnelSDK
+```
+Inicializa o SDK, conecta com os objetos `window.Dt...` e registra listeners de eventos globais.
+
+**Parâmetros:**
+| Opção | Tipo | Padrão | Descrição |
+| --- | --- | --- | --- |
+| `strict` | `boolean` | `false` | Se `true`, lança `DTunnelBridgeError` quando um método nativo não existir. Se `false`, retorna `null` e emite evento `'error'`. |
+| `autoRegisterNativeEvents` | `boolean` | `true` | Se `true`, mapeia automaticamente todos os callbacks nativos no escopo global. |
+| `window` | `DTunnelBridgeHost` | `window` | Host dos objetos de bridge (útil para testes unitários ou SSR). |
+| `logger` | `Pick<Console, 'error'>` | `console` | Instância personalizada de logger. |
+
+---
+
+### Métodos Principais
+
+#### `sdk.on(eventName, listener): () => void`
+Inscreve um ouvinte para eventos semânticos, nativos ou erros.
+- **Retorno:** Função que remove o listener quando executada.
+- **Exemplo:**
+  ```ts
+  const unbind = sdk.on('vpnState', (event) => {
+    console.log('Novo estado da VPN:', event.payload);
+  });
+  // Para cancelar:
+  unbind();
+  ```
+
+#### `sdk.once(eventName, listener): () => void`
+Executa o ouvinte apenas uma vez para o primeiro disparo do evento.
+
+#### `sdk.off(eventName, listener): void`
+Remove um ouvinte previamente registrado.
+
+#### `sdk.getBridgeAvailability(): Record<DTunnelBridgeObjectName, boolean>`
+Retorna um mapa booleano com a disponibilidade de cada um dos 53 objetos nativos de bridge no ambiente atual.
+
+#### `sdk.isReady(requiredObjects?: readonly DTunnelBridgeObjectName[]): boolean`
+Verifica se todos os objetos obrigatórios de bridge estão disponíveis na janela atual.
+
+#### `sdk.createDebugSnapshot(): DTunnelDebugSnapshot`
+Gera uma captura instantânea de diagnóstico com status da bridge, listeners e opções ativas.
+
+---
+
+## sdk.main (VPN, Conexão e Anúncios)
+
+### `sdk.main.startVpn(): void`
+- **Bridge nativa:** `window.DtExecuteVpnStart.execute()`
+- **Descrição:** Inicia a conexão VPN utilizando a configuração e credenciais ativas.
+
+### `sdk.main.stopVpn(): void`
+- **Bridge nativa:** `window.DtExecuteVpnStop.execute()`
+- **Descrição:** Interrompe a conexão VPN imediatamente.
+
+### `sdk.main.getVpnState(): DTunnelVPNState | null`
+- **Bridge nativa:** `window.DtGetVpnState.execute()`
+- **Retorno:** `'CONNECTED' | 'DISCONNECTED' | 'CONNECTING' | 'STOPPING' | 'NO_NETWORK' | 'AUTH' | 'AUTH_FAILED' | null`
+- **Descrição:** Consulta o status atual de conexão do túnel.
+
+### `sdk.main.isVpnRunning(): boolean`
+- **Bridge nativa:** `window.DtIsVpnRunning.execute()`
+- **Retorno:** `boolean`
+- **Descrição:** Retorna `true` se o serviço de VPN do Android estiver em execução.
+
+### `sdk.main.showAdsRewardedDialog(): void`
+- **Bridge nativa:** `window.DtShowDialogAdsRewarded.execute()`
+- **Descrição:** Exibe o modal nativo de anúncio premiado para extensão de tempo de uso.
+
+### `sdk.main.isAdsEnabled(): boolean`
+- **Bridge nativa:** `window.DtIsAdsEnabled.execute()`
+- **Retorno:** `boolean`
+- **Descrição:** Informa se os anúncios estão habilitados no aplicativo.
+
+### `sdk.main.getRemainingConnectionTime(): number | null`
+- **Bridge nativa:** `window.DtGetRemainingConnectionTime.execute()`
+- **Retorno:** `number | null` (tempo em segundos).
+
+### `sdk.main.getRemainingConnectionTimerText(): string | null`
+- **Bridge nativa:** `window.DtGetRemainingConnectionTimerText.execute()`
+- **Retorno:** `string | null` (ex: `"02:45:10"`).
+
+### `sdk.main.getLastVpnError(): string | null`
+- **Bridge nativa:** `window.DtGetLastVpnError.execute()`
+- **Retorno:** Mensagem do último erro ocorrido na conexão.
+
+### `sdk.main.startCheckUser(): void`
+- **Bridge nativa:** `window.DtStartCheckUser.execute()`
+- **Descrição:** Dispara a checagem remota da conta SSH. O resultado chega pelo evento `checkUserResult`.
+
+### `sdk.main.getLogs(): DTunnelLogEntry[] | null`
+- **Bridge nativa:** `window.DtGetLogs.execute()`
+- **Retorno:** Array de logs gerados pelo núcleo do túnel.
+
+### `sdk.main.clearLogs(): void`
+- **Bridge nativa:** `window.DtClearLogs.execute()`
+- **Descrição:** Limpa a lista de logs no aplicativo.
+
+---
+
+## sdk.config (Categorias, Servidores e Importação)
+
+### `sdk.config.getCategories(): DTunnelCategorySummary[] | null`
+- **Bridge nativa:** `window.DtGetCategories.execute()`
+- **Retorno:** Lista de categorias resumidas com contagem de configurações associadas.
+- **Exemplo de Retorno:**
+  ```json
+  [
+    { "id": 10, "name": "Brasil", "color": "#532e7d", "sorter": 1, "count": 8 },
+    { "id": 20, "name": "EUA", "color": "#1a4480", "sorter": 2, "count": 4 }
+  ]
+  ```
+
+### `sdk.config.getConfigsByCategory(categoryId: number): DTunnelConfigListItem[] | null`
+- **Bridge nativa:** `window.DtGetConfigsByCategory.execute(categoryId)`
+- **Parâmetros:** `categoryId: number` - ID da categoria.
+- **Retorno:** Lista de servidores/configurações da categoria especificada.
+
+### `sdk.config.getSelectedConfig(): DTunnelDefaultConfig | null`
+- **Bridge nativa:** `window.DtGetSelectedConfig.execute()`
+- **Retorno:** Objeto com a configuração selecionada atualmente para conexão.
+
+### `sdk.config.setConfig(id: number): void`
+- **Bridge nativa:** `window.DtSetConfig.execute(id)`
+- **Parâmetros:** `id: number` - ID numérico da configuração a ser ativada.
+
+### `sdk.config.getImportPublicKey(): string | null`
+- **Bridge nativa:** `window.DtGetImportPublicKey.execute()`
+- **Retorno:** Chave pública criptográfica do aplicativo para geração de payloads offline.
+
+### `sdk.config.copyImportPublicKey(): void`
+- **Bridge nativa:** `window.DtCopyImportPublicKey.execute()`
+- **Descrição:** Copia a chave pública diretamente para a área de transferência do Android.
+
+### `sdk.config.importConfig(payload: string): void`
+- **Bridge nativa:** `window.DtImportConfig.execute(payload)`
+- **Parâmetros:** `payload: string` - Envelope de configuração criptografado.
+
+### `sdk.config.getUser(): DTunnelUserCredentials | null`
+- **Bridge nativa:** `window.DtGetUser.execute()`
+- **Retorno:** `{ username: string, password: string, uuid: string } | null`
+
+---
+
+## sdk.android (Hardware e Sistema Android)
+
+### `sdk.android.copyToClipboard(text: string): void`
+- **Bridge nativa:** `window.DtCopyToClipboard.execute(text)`
+- **Descrição:** Salva o texto na área de transferência do dispositivo.
+
+### `sdk.android.getClipboardText(): string | null`
+- **Bridge nativa:** `window.DtGetClipboardText.execute()`
+- **Retorno:** Texto atualmente presente no clipboard.
+
+### `sdk.android.showToast(message: string): void`
+- **Bridge nativa:** `window.DtShowToast.execute(message)`
+- **Descrição:** Exibe mensagem Toast nativa flutuante.
+
+### `sdk.android.vibrate(durationMillis?: number): void`
+- **Bridge nativa:** `window.DtVibrate.execute(durationMillis)`
+- **Parâmetros:** `durationMillis?: number` (Padrão: 50ms).
+
+### `sdk.android.isDarkMode(): boolean`
+- **Bridge nativa:** `window.DtIsDarkMode.execute()`
+- **Retorno:** `true` se o sistema estiver no modo escuro.
+
+### `sdk.android.getAppColors(): DTunnelAppColors | null`
+- **Bridge nativa:** `window.DtGetAppColors.execute()`
+- **Retorno:** Cores customizadas da identidade visual do app.
+
+### `sdk.android.getDiagnosticReport(): string | null`
+- **Bridge nativa:** `window.DtGetDiagnosticReport.execute()`
+- **Retorno:** Relatório de suporte técnico e telemetria formatado em texto.
+
+### `sdk.android.openExternalUrl(url: string): void`
+- **Bridge nativa:** `window.DtOpenExternalUrl.execute(url)`
+- **Descrição:** Abre o link no navegador externo padrão do Android.
+
+---
+
+## sdk.app (Telas e Configurações Globais)
+
+### `sdk.app.getAppConfig<T>(name: string): DTunnelAppConfigValue<T> | null`
+- **Bridge nativa:** `window.DtGetAppConfig.execute(name)`
+- **Parâmetros:** `name: string` - Chave da configuração remota.
+
+### `sdk.app.startApnActivity(): void`
+- **Bridge nativa:** `window.DtStartApnActivity.execute()`
+- **Descrição:** Abre a tela nativa de configurações de APN móvel.
+
+### `sdk.app.startRadioInfoActivity(): void`
+- **Bridge nativa:** `window.DtStartRadioInfoActivity.execute()`
+- **Descrição:** Abre as opções de rádio e sinal móvel.
+
+---
+
+## sdk.text (Internacionalização Dinâmica)
+
+### `sdk.text.translate(label: string | null): string | null`
+- **Bridge nativa:** `window.DtTranslateText.execute(label)`
+- **Descrição:** Retorna a tradução associada à chave `label`.
+
+---
+
+## Interfaces TypeScript & Schemas
 
 ```ts
-new DTunnelSDK(options?)
+export type DTunnelVPNState =
+  | 'CONNECTED'
+  | 'DISCONNECTED'
+  | 'CONNECTING'
+  | 'STOPPING'
+  | 'NO_NETWORK'
+  | 'AUTH'
+  | 'AUTH_FAILED';
+
+export interface DTunnelCategorySummary {
+  id: number;
+  name: string;
+  color: string;
+  sorter: number;
+  count: number;
+}
+
+export interface DTunnelDefaultConfig {
+  id: number;
+  category_id: number;
+  name: string;
+  description: string;
+  mode: string;
+  sorter: number;
+  icon: string;
+  requires_username?: boolean;
+  requires_password?: boolean;
+  requires_uuid?: boolean;
+}
+
+export interface DTunnelAppColors {
+  backgroundColor: string;
+  cardColor: string;
+  cardStatusColor: string;
+  cardConfigColor: string;
+  dialogBackgroundColor: string;
+  dialogLoggerColor: string;
+  borderColor: string;
+  inputColor: string;
+  textColor: string;
+  buttonColor: string;
+  iconColor: string;
+}
+
+export interface DTunnelUserCredentials {
+  username: string;
+  password: string;
+  uuid: string;
+}
+
+export interface DTunnelCheckUserResult {
+  username?: string;
+  count_connection?: number | string;
+  limit_connection?: number | string;
+  expiration_date?: string;
+  expiration_days?: number | string;
+  is_active?: boolean;
+}
 ```
-
-`options`:
-
-- `window?: DTunnelBridgeHost`
-- `strict?: boolean`
-- `logger?: Pick<Console, 'error'>`
-- `autoRegisterNativeEvents?: boolean`
-
-## Modulos do SDK
-
-### `sdk.config`
-
-```ts
-setConfig(id: number): void;
-getConfigs(): DTunnelCategory[] | null;
-getCategories(): DTunnelCategorySummary[] | null;
-getSelectedCategory(): DTunnelCategoryDetail | null;
-getSelectedCategoryId(): number | null;
-getConfigsByCategory(categoryId: number): DTunnelConfigListItem[] | null;
-getSelectedConfig(): DTunnelDefaultConfig | null;
-getSelectedConfigId(): number | null;
-getConfigCount(): number | null;
-getDefaultConfig(): DTunnelDefaultConfig | null;
-openConfigDialog(): void;
-getImportPublicKey(): string | null;
-copyImportPublicKey(): void;
-importConfig(payload: string): void;
-hasPendingConfigImport(): boolean;
-getPendingConfigImportDetails(): DTunnelPendingImport | null;
-getUsername(): string | null;
-setUsername(value: string): void;
-getPassword(): string | null;
-setPassword(value: string): void;
-getLocalConfigVersion(): number | null;
-getCdnCount(): number | null;
-getEndpointCount(): number | null;
-getUuid(): string | null;
-setUuid(value: string): void;
-getUser(): DTunnelUserCredentials | null;
-```
-
-### `sdk.main`
-
-```ts
-getLogs(): DTunnelLogEntry[] | null;
-clearLogs(): void;
-startVpn(): void;
-stopVpn(): void;
-getVpnState(): DTunnelVPNState | null;
-isVpnRunning(): boolean;
-startAppUpdate(): void;
-startCheckUser(): void;
-showLoggerDialog(): void;
-getLocalIp(): string | null;
-activateAirplaneMode(): void;
-deactivateAirplaneMode(): void;
-getAirplaneState(): DTunnelAirplaneState | null;
-getAssistantState(): DTunnelAssistantState | null;
-isCurrentAssistantEnabled(): boolean;
-showMenuDialog(): void;
-showAdsRewardedDialog(): void;
-isAdsEnabled(): boolean;
-getRemainingConnectionTime(): number | null;
-getRemainingConnectionTimerText(): string | null;
-getLastVpnError(): string | null;
-getNetworkName(): string | null;
-getPingResult(): string | null;
-```
-
-### `sdk.text`
-
-```ts
-translate(label: string | null): string | null;
-```
-
-### `sdk.app`
-
-```ts
-cleanApp(): void;
-goToVoiceInputSettings(): void;
-getAppConfig<T = unknown>(name: string): DTunnelAppConfigValue<T> | null;
-ignoreBatteryOptimizations(): void;
-startApnActivity(): void;
-startNetworkActivity(): void;
-startWebViewActivity(url?: string | null): void;
-startRadioInfoActivity(): void;
-```
-
-### `sdk.android`
-
-```ts
-getDeviceId(): string | null;
-sendNotification(title: string, message: string, imageUrl?: string | null): void;
-getNetworkData(): DTunnelNetworkData | null;
-getStatusBarHeight(): number | null;
-getNavigationBarHeight(): number | null;
-openExternalUrl(url: string): void;
-startHotSpotService(port?: number): void;
-stopHotSpotService(): void;
-getHotSpotStatus(): DTunnelHotSpotStatus | null;
-isHotSpotRunning(): boolean;
-getNetworkDownloadBytes(): number | null;
-getNetworkUploadBytes(): number | null;
-getAppVersion(): string | null;
-handleAction(action: DTunnelAction | (string & {})): void;
-closeApp(): void;
-copyToClipboard(text: string): void;
-getClipboardText(): string | null;
-showToast(message: string): void;
-vibrate(durationMillis?: number): void;
-isDarkMode(): boolean;
-getAppColors(): DTunnelAppColors | null;
-getDiagnosticReport(): string | null;
-copyDiagnosticReport(): void;
-isSafeMode(): boolean;
-```
-
-## Metodos utilitarios do SDK
-
-```ts
-on(...): () => void;
-once(...): () => void;
-off(...): void;
-removeAllListeners(eventName?: string): void;
-
-onNativeEvent(listener): () => void;
-onError(listener): () => void;
-
-getBridgeObject<T = unknown>(objectName: string): T | undefined;
-hasBridgeObject(objectName: string): boolean;
-getBridgeAvailability(): Record<DTunnelBridgeObjectName, boolean>;
-isReady(requiredObjects?: readonly DTunnelBridgeObjectName[]): boolean;
-
-call<T = unknown>(objectName: string, methodName: string, args?: unknown[]): T | null;
-callJson<T = unknown>(objectName: string, methodName: string, args?: unknown[]): T | null;
-callVoid(objectName: string, methodName: string, args?: unknown[]): void;
-
-registerNativeEventHandlers(): this;
-unregisterNativeEventHandlers(): this;
-createDebugSnapshot(): DTunnelDebugSnapshot;
-destroy(): void;
-```
-
-## Tipos principais
-
-- `DTunnelVPNState`: `CONNECTED | DISCONNECTED | CONNECTING | STOPPING | NO_NETWORK | AUTH | AUTH_FAILED`
-- `DTunnelAirplaneState`: `ACTIVE | INACTIVE`
-- `DTunnelAssistantState`: `ENABLED | DISABLED`
-- `DTunnelHotSpotStatus`: `RUNNING | STOPPED`
-- `DTunnelAction`: `CDN_UPDATE | CONFIG_UPDATE | CATEGORY_UPDATE | APP_CONFIG_UPDATE | APP_TEXT_UPDATE | APP_START_VPN | APP_RECONNECT_VPN | APP_RESTART_VPN | APP_STOP_VPN | FCM_TOKEN`
-
-## Objetos de bridge nativos (window.Dt...)
-
-### Config & Import
-
-- `DtSetConfig.execute(id)`
-- `DtGetConfigs.execute()`
-- `DtGetCategories.execute()`
-- `DtGetSelectedCategory.execute()`
-- `DtGetSelectedCategoryId.execute()`
-- `DtGetConfigsByCategory.execute(categoryId)`
-- `DtGetSelectedConfig.execute()`
-- `DtGetSelectedConfigId.execute()`
-- `DtGetConfigCount.execute()`
-- `DtGetDefaultConfig.execute()`
-- `DtExecuteDialogConfig.execute()`
-- `DtGetImportPublicKey.execute()`
-- `DtCopyImportPublicKey.execute()`
-- `DtImportConfig.execute(payload)`
-- `DtHasPendingConfigImport.execute()`
-- `DtGetPendingConfigImportDetails.execute()`
-- `DtUsername.get()`, `DtUsername.set(value)`
-- `DtPassword.get()`, `DtPassword.set(value)`
-- `DtGetLocalConfigVersion.execute()`
-- `DtCDNCount.execute()` / `DtEndpointCount.execute()`
-- `DtUuid.get()`, `DtUuid.set(value)`
-- `DtGetUser.execute()`
-
-### Main & Conexão
-
-- `DtGetLogs.execute()`
-- `DtClearLogs.execute()`
-- `DtExecuteVpnStart.execute()`
-- `DtExecuteVpnStop.execute()`
-- `DtGetVpnState.execute()`
-- `DtIsVpnRunning.execute()`
-- `DtStartAppUpdate.execute()`
-- `DtStartCheckUser.execute()`
-- `DtShowLoggerDialog.execute()`
-- `DtGetLocalIP.execute()`
-- `DtAirplaneActivate.execute()`
-- `DtAirplaneDeactivate.execute()`
-- `DtAirplaneState.execute()`
-- `DtAppIsCurrentAssistant.execute()`
-- `DtShowMenuDialog.execute()`
-- `DtShowDialogAdsRewarded.execute()`
-- `DtIsAdsEnabled.execute()`
-- `DtGetRemainingConnectionTime.execute()`
-- `DtGetRemainingConnectionTimerText.execute()`
-- `DtGetLastVpnError.execute()`
-- `DtGetNetworkName.execute()`
-- `DtGetPingResult.execute()`
-
-### Sistema & Dispositivo
-
-- `DtCopyToClipboard.execute(text)`
-- `DtGetClipboardText.execute()`
-- `DtShowToast.execute(message)`
-- `DtVibrate.execute(durationMillis)`
-- `DtIsDarkMode.execute()`
-- `DtGetAppColors.execute()`
-- `DtGetDiagnosticReport.execute()`
-- `DtCopyDiagnosticReport.execute()`
-- `DtIsSafeMode.execute()`

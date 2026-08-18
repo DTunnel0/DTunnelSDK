@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "dtunnel-sdk": "^1.2.1"
+    "dtunnel-sdk": "^2.0.0"
   },
   "devDependencies": {
     "typescript": "^5.7.3",
