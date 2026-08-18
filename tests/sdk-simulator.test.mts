@@ -151,3 +151,36 @@ test('does not install simulator when native WebView bridge is present', () => {
   assert.equal(simulator.isBlockedByWebView(), true);
   assert.equal(windowRef.DtGetVpnState, nativeBridge);
 });
+
+test('simulator correctly resolves categories, import keys, colors and device methods', () => {
+  const windowRef: Record<string, unknown> = {};
+  const simulator = simulatorModule.installDTunnelSDKSimulator({
+    window: windowRef,
+    autoEvents: false,
+  });
+
+  const sdk = new DTunnelSDK({
+    window: windowRef,
+    strict: true,
+    autoRegisterNativeEvents: false,
+  });
+
+  const categories = (sdk as unknown as { config: { getCategories: () => Array<{ id: number; name: string }> } }).config.getCategories();
+  assert.equal(Array.isArray(categories), true);
+  assert.equal(categories[0].name, 'Brasil');
+
+  const importKey = (sdk as unknown as { config: { getImportPublicKey: () => string } }).config.getImportPublicKey();
+  assert.equal(importKey, 'dtunnel_pub_key_mock_123');
+
+  const isAds = (sdk as unknown as { main: { isAdsEnabled: () => boolean } }).main.isAdsEnabled();
+  assert.equal(isAds, true);
+
+  const colors = (sdk as unknown as { android: { getAppColors: () => { backgroundColor: string } } }).android.getAppColors();
+  assert.equal(colors.backgroundColor, '#121212');
+
+  const isDark = (sdk as unknown as { android: { isDarkMode: () => boolean } }).android.isDarkMode();
+  assert.equal(isDark, true);
+
+  sdk.destroy();
+  simulator.uninstall();
+});

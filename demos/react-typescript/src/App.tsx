@@ -165,16 +165,17 @@ export function App() {
 
   async function copySnapshot() {
     const snapshot = JSON.stringify(sdk.createDebugSnapshot(), null, 2);
-    if (!navigator.clipboard?.writeText) {
-      appendLog('WARN', 'Clipboard API indisponivel neste ambiente');
-      return;
-    }
-
     try {
-      await navigator.clipboard.writeText(snapshot);
-      appendLog('INFO', 'Debug snapshot copiado para a area de transferencia');
-    } catch (error) {
-      appendLog('ERROR', 'Falha ao copiar snapshot', String(error));
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(snapshot);
+        appendLog('INFO', 'Debug snapshot copiado para a area de transferencia');
+        return;
+      }
+      sdk.android.copyToClipboard(snapshot);
+      appendLog('INFO', 'Debug snapshot copiado via sdk.android.copyToClipboard');
+    } catch (_error) {
+      sdk.android.copyToClipboard(snapshot);
+      appendLog('INFO', 'Debug snapshot copiado via sdk.android.copyToClipboard (fallback)');
     }
   }
 

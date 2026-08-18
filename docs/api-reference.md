@@ -22,16 +22,30 @@ new DTunnelSDK(options?)
 ```ts
 setConfig(id: number): void;
 getConfigs(): DTunnelCategory[] | null;
+getCategories(): DTunnelCategorySummary[] | null;
+getSelectedCategory(): DTunnelCategoryDetail | null;
+getSelectedCategoryId(): number | null;
+getConfigsByCategory(categoryId: number): DTunnelConfigListItem[] | null;
+getSelectedConfig(): DTunnelDefaultConfig | null;
+getSelectedConfigId(): number | null;
+getConfigCount(): number | null;
 getDefaultConfig(): DTunnelDefaultConfig | null;
 openConfigDialog(): void;
+getImportPublicKey(): string | null;
+copyImportPublicKey(): void;
+importConfig(payload: string): void;
+hasPendingConfigImport(): boolean;
+getPendingConfigImportDetails(): DTunnelPendingImport | null;
 getUsername(): string | null;
 setUsername(value: string): void;
 getPassword(): string | null;
 setPassword(value: string): void;
 getLocalConfigVersion(): number | null;
 getCdnCount(): number | null;
+getEndpointCount(): number | null;
 getUuid(): string | null;
 setUuid(value: string): void;
+getUser(): DTunnelUserCredentials | null;
 ```
 
 ### `sdk.main`
@@ -42,6 +56,7 @@ clearLogs(): void;
 startVpn(): void;
 stopVpn(): void;
 getVpnState(): DTunnelVPNState | null;
+isVpnRunning(): boolean;
 startAppUpdate(): void;
 startCheckUser(): void;
 showLoggerDialog(): void;
@@ -52,6 +67,11 @@ getAirplaneState(): DTunnelAirplaneState | null;
 getAssistantState(): DTunnelAssistantState | null;
 isCurrentAssistantEnabled(): boolean;
 showMenuDialog(): void;
+showAdsRewardedDialog(): void;
+isAdsEnabled(): boolean;
+getRemainingConnectionTime(): number | null;
+getRemainingConnectionTimerText(): string | null;
+getLastVpnError(): string | null;
 getNetworkName(): string | null;
 getPingResult(): string | null;
 ```
@@ -93,6 +113,15 @@ getNetworkUploadBytes(): number | null;
 getAppVersion(): string | null;
 handleAction(action: DTunnelAction | (string & {})): void;
 closeApp(): void;
+copyToClipboard(text: string): void;
+getClipboardText(): string | null;
+showToast(message: string): void;
+vibrate(durationMillis?: number): void;
+isDarkMode(): boolean;
+getAppColors(): DTunnelAppColors | null;
+getDiagnosticReport(): string | null;
+copyDiagnosticReport(): void;
+isSafeMode(): boolean;
 ```
 
 ## Metodos utilitarios do SDK
@@ -131,25 +160,39 @@ destroy(): void;
 
 ## Objetos de bridge nativos (window.Dt...)
 
-### Config
+### Config & Import
 
 - `DtSetConfig.execute(id)`
 - `DtGetConfigs.execute()`
+- `DtGetCategories.execute()`
+- `DtGetSelectedCategory.execute()`
+- `DtGetSelectedCategoryId.execute()`
+- `DtGetConfigsByCategory.execute(categoryId)`
+- `DtGetSelectedConfig.execute()`
+- `DtGetSelectedConfigId.execute()`
+- `DtGetConfigCount.execute()`
 - `DtGetDefaultConfig.execute()`
 - `DtExecuteDialogConfig.execute()`
+- `DtGetImportPublicKey.execute()`
+- `DtCopyImportPublicKey.execute()`
+- `DtImportConfig.execute(payload)`
+- `DtHasPendingConfigImport.execute()`
+- `DtGetPendingConfigImportDetails.execute()`
 - `DtUsername.get()`, `DtUsername.set(value)`
 - `DtPassword.get()`, `DtPassword.set(value)`
 - `DtGetLocalConfigVersion.execute()`
-- `DtCDNCount.execute()`
+- `DtCDNCount.execute()` / `DtEndpointCount.execute()`
 - `DtUuid.get()`, `DtUuid.set(value)`
+- `DtGetUser.execute()`
 
-### Main
+### Main & Conexão
 
 - `DtGetLogs.execute()`
 - `DtClearLogs.execute()`
 - `DtExecuteVpnStart.execute()`
 - `DtExecuteVpnStop.execute()`
 - `DtGetVpnState.execute()`
+- `DtIsVpnRunning.execute()`
 - `DtStartAppUpdate.execute()`
 - `DtStartCheckUser.execute()`
 - `DtShowLoggerDialog.execute()`
@@ -159,48 +202,22 @@ destroy(): void;
 - `DtAirplaneState.execute()`
 - `DtAppIsCurrentAssistant.execute()`
 - `DtShowMenuDialog.execute()`
+- `DtShowDialogAdsRewarded.execute()`
+- `DtIsAdsEnabled.execute()`
+- `DtGetRemainingConnectionTime.execute()`
+- `DtGetRemainingConnectionTimerText.execute()`
+- `DtGetLastVpnError.execute()`
 - `DtGetNetworkName.execute()`
 - `DtGetPingResult.execute()`
 
-### Text
+### Sistema & Dispositivo
 
-- `DtTranslateText.execute(label)`
-
-### App
-
-- `DtCleanApp.execute()`
-- `DtGoToVoiceInputSettings.execute()`
-- `DtGetAppConfig.execute(name)`
-- `DtIgnoreBatteryOptimizations.execute()`
-- `DtStartApnActivity.execute()`
-- `DtStartNetworkActivity.execute()`
-- `DtStartWebViewActivity.execute(url)` ou `execute()`
-- `DtStartRadioInfoActivity.execute()`
-
-### Android
-
-- `DtGetDeviceID.execute()`
-- `DtSendNotification.execute(title, message, imageUrl)`
-- `DtGetNetworkData.execute()`
-- `DtGetStatusBarHeight.execute()`
-- `DtGetNavigationBarHeight.execute()`
-- `DtOpenExternalUrl.execute(url)`
-- `DtStartHotSpotService.execute(port)` ou `execute()`
-- `DtStopHotSpotService.execute()`
-- `DtGetStatusHotSpotService.execute()`
-- `DtGetNetworkDownloadBytes.execute()`
-- `DtGetNetworkUploadBytes.execute()`
-- `DtAppVersion.execute()`
-- `DtActionHandler.execute(action)`
-- `DtCloseApp.execute()`
-
-## API React (`dtunnel-sdk/react`)
-
-```ts
-DTunnelSDKProvider(props: { children?: ReactNode; sdk?: DTunnelSDK; options?: DTunnelSDKOptions }): ReactElement;
-useDTunnelSDK(): DTunnelSDK;
-useDTunnelEvent(eventName, listener): void;
-useDTunnelNativeEvent(listener): void;
-useDTunnelError(listener): void;
-```
-
+- `DtCopyToClipboard.execute(text)`
+- `DtGetClipboardText.execute()`
+- `DtShowToast.execute(message)`
+- `DtVibrate.execute(durationMillis)`
+- `DtIsDarkMode.execute()`
+- `DtGetAppColors.execute()`
+- `DtGetDiagnosticReport.execute()`
+- `DtCopyDiagnosticReport.execute()`
+- `DtIsSafeMode.execute()`

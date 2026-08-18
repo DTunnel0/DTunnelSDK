@@ -5,18 +5,33 @@
   const BRIDGE_OBJECTS = Object.freeze([
     'DtSetConfig',
     'DtGetConfigs',
+    'DtGetCategories',
+    'DtGetSelectedCategory',
+    'DtGetSelectedCategoryId',
+    'DtGetConfigsByCategory',
+    'DtGetSelectedConfig',
+    'DtGetSelectedConfigId',
+    'DtGetConfigCount',
     'DtGetDefaultConfig',
     'DtExecuteDialogConfig',
+    'DtGetImportPublicKey',
+    'DtCopyImportPublicKey',
+    'DtImportConfig',
+    'DtHasPendingConfigImport',
+    'DtGetPendingConfigImportDetails',
     'DtUsername',
     'DtPassword',
     'DtGetLocalConfigVersion',
     'DtCDNCount',
+    'DtEndpointCount',
     'DtUuid',
+    'DtGetUser',
     'DtGetLogs',
     'DtClearLogs',
     'DtExecuteVpnStart',
     'DtExecuteVpnStop',
     'DtGetVpnState',
+    'DtIsVpnRunning',
     'DtStartAppUpdate',
     'DtStartCheckUser',
     'DtShowLoggerDialog',
@@ -26,6 +41,11 @@
     'DtAirplaneState',
     'DtAppIsCurrentAssistant',
     'DtShowMenuDialog',
+    'DtShowDialogAdsRewarded',
+    'DtIsAdsEnabled',
+    'DtGetRemainingConnectionTime',
+    'DtGetRemainingConnectionTimerText',
+    'DtGetLastVpnError',
     'DtGetNetworkName',
     'DtGetPingResult',
     'DtTranslateText',
@@ -51,56 +71,93 @@
     'DtAppVersion',
     'DtActionHandler',
     'DtCloseApp',
+    'DtCopyToClipboard',
+    'DtGetClipboardText',
+    'DtShowToast',
+    'DtVibrate',
+    'DtIsDarkMode',
+    'DtGetAppColors',
+    'DtGetDiagnosticReport',
+    'DtCopyDiagnosticReport',
+    'DtIsSafeMode',
   ]);
 
   const EVENT_DEFINITIONS = freezeEventDefinitions({
     vpnState: {
-      callbacks: ['DtVpnStateEvent'],
+      callbacks: ['DtVpnStateEvent', 'dtVpnStateListener'],
       parseAsJson: false,
     },
     vpnStartedSuccess: {
-      callbacks: ['DtVpnStartedSuccessEvent'],
+      callbacks: ['DtVpnStartedSuccessEvent', 'dtVpnStartedSuccessListener'],
       parseAsJson: false,
     },
     vpnStoppedSuccess: {
-      callbacks: ['DtVpnStoppedSuccessEvent'],
+      callbacks: ['DtVpnStoppedSuccessEvent', 'dtVpnStoppedSuccessListener'],
       parseAsJson: false,
     },
     newLog: {
-      callbacks: ['DtNewLogEvent'],
+      callbacks: ['DtNewLogEvent', 'dtOnNewLogListener'],
       parseAsJson: false,
     },
     newDefaultConfig: {
-      callbacks: ['DtNewDefaultConfigEvent'],
+      callbacks: ['DtNewDefaultConfigEvent', 'dtConfigClickListener'],
       parseAsJson: false,
     },
     checkUserStarted: {
-      callbacks: ['DtCheckUserStartedEvent'],
+      callbacks: ['DtCheckUserStartedEvent', 'dtCheckUserStartedListener'],
       parseAsJson: false,
     },
     checkUserResult: {
-      callbacks: ['DtCheckUserResultEvent'],
+      callbacks: ['DtCheckUserResultEvent', 'dtCheckUserModelListener'],
       parseAsJson: true,
     },
     checkUserError: {
-      callbacks: ['DtCheckUserErrorEvent'],
+      callbacks: ['DtCheckUserErrorEvent', 'dtCheckUserErrorListener'],
       parseAsJson: false,
     },
     messageError: {
-      callbacks: ['DtMessageErrorEvent'],
+      callbacks: ['DtMessageErrorEvent', 'dtMessageErrorListener'],
       parseAsJson: true,
     },
     showSuccessToast: {
-      callbacks: ['DtSuccessToastEvent'],
+      callbacks: ['DtSuccessToastEvent', 'dtShowSuccessToastListener'],
       parseAsJson: false,
     },
     showErrorToast: {
-      callbacks: ['DtErrorToastEvent'],
+      callbacks: ['DtErrorToastEvent', 'dtShowErrorToastListener'],
       parseAsJson: false,
     },
     notification: {
       callbacks: ['DtNotificationEvent'],
       parseAsJson: true,
+    },
+    localIp: {
+      callbacks: ['DtLocalIpEvent', 'dtLocalIpListener'],
+      parseAsJson: false,
+    },
+    networkName: {
+      callbacks: ['DtNetworkNameEvent', 'dtNetworkNameListener'],
+      parseAsJson: false,
+    },
+    pingResult: {
+      callbacks: ['DtPingResultEvent', 'dtPingResultListener'],
+      parseAsJson: false,
+    },
+    checkingAppUpdate: {
+      callbacks: ['DtCheckingAppUpdateEvent', 'dtCheckingAppUpdateListener'],
+      parseAsJson: false,
+    },
+    airplaneState: {
+      callbacks: ['DtAirplaneStateEvent', 'dtAirplaneStateListener'],
+      parseAsJson: false,
+    },
+    hotSpotState: {
+      callbacks: ['DtHotSpotStateEvent', 'dtHotSpotStateListener'],
+      parseAsJson: false,
+    },
+    reloadRequest: {
+      callbacks: ['DtReloadRequestEvent', 'dtReloadRequestListener'],
+      parseAsJson: false,
     },
   });
 
@@ -392,11 +449,47 @@
     getConfigs() {
       return this.callJson('DtGetConfigs', 'execute');
     }
+    getCategories() {
+      return this.callJson('DtGetCategories', 'execute');
+    }
+    getSelectedCategory() {
+      return this.callJson('DtGetSelectedCategory', 'execute');
+    }
+    getSelectedCategoryId() {
+      return this.call('DtGetSelectedCategoryId', 'execute');
+    }
+    getConfigsByCategory(categoryId) {
+      return this.callJson('DtGetConfigsByCategory', 'execute', [categoryId]);
+    }
+    getSelectedConfig() {
+      return this.callJson('DtGetSelectedConfig', 'execute');
+    }
+    getSelectedConfigId() {
+      return this.call('DtGetSelectedConfigId', 'execute');
+    }
+    getConfigCount() {
+      return this.call('DtGetConfigCount', 'execute');
+    }
     getDefaultConfig() {
       return this.callJson('DtGetDefaultConfig', 'execute');
     }
     openConfigDialog() {
       this.callVoid('DtExecuteDialogConfig', 'execute');
+    }
+    getImportPublicKey() {
+      return this.call('DtGetImportPublicKey', 'execute');
+    }
+    copyImportPublicKey() {
+      this.callVoid('DtCopyImportPublicKey', 'execute');
+    }
+    importConfig(payload) {
+      this.callVoid('DtImportConfig', 'execute', [payload]);
+    }
+    hasPendingConfigImport() {
+      return Boolean(this.call('DtHasPendingConfigImport', 'execute'));
+    }
+    getPendingConfigImportDetails() {
+      return this.callJson('DtGetPendingConfigImportDetails', 'execute');
     }
     getUsername() {
       return this.call('DtUsername', 'get');
@@ -414,13 +507,22 @@
       return this.call('DtGetLocalConfigVersion', 'execute');
     }
     getCdnCount() {
+      if (this.gateway.hasObject('DtEndpointCount')) {
+        return this.call('DtEndpointCount', 'execute');
+      }
       return this.call('DtCDNCount', 'execute');
+    }
+    getEndpointCount() {
+      return this.getCdnCount();
     }
     getUuid() {
       return this.call('DtUuid', 'get');
     }
     setUuid(value) {
       this.callVoid('DtUuid', 'set', [value]);
+    }
+    getUser() {
+      return this.callJson('DtGetUser', 'execute');
     }
   }
 
@@ -439,6 +541,9 @@
     }
     getVpnState() {
       return this.call('DtGetVpnState', 'execute');
+    }
+    isVpnRunning() {
+      return Boolean(this.call('DtIsVpnRunning', 'execute'));
     }
     startAppUpdate() {
       this.callVoid('DtStartAppUpdate', 'execute');
@@ -469,6 +574,21 @@
     }
     showMenuDialog() {
       this.callVoid('DtShowMenuDialog', 'execute');
+    }
+    showAdsRewardedDialog() {
+      this.callVoid('DtShowDialogAdsRewarded', 'execute');
+    }
+    isAdsEnabled() {
+      return Boolean(this.call('DtIsAdsEnabled', 'execute'));
+    }
+    getRemainingConnectionTime() {
+      return this.call('DtGetRemainingConnectionTime', 'execute');
+    }
+    getRemainingConnectionTimerText() {
+      return this.call('DtGetRemainingConnectionTimerText', 'execute');
+    }
+    getLastVpnError() {
+      return this.call('DtGetLastVpnError', 'execute');
     }
     getNetworkName() {
       return this.call('DtGetNetworkName', 'execute');
@@ -568,6 +688,33 @@
     }
     closeApp() {
       this.callVoid('DtCloseApp', 'execute');
+    }
+    copyToClipboard(text) {
+      this.callVoid('DtCopyToClipboard', 'execute', [text]);
+    }
+    getClipboardText() {
+      return this.call('DtGetClipboardText', 'execute');
+    }
+    showToast(message) {
+      this.callVoid('DtShowToast', 'execute', [message]);
+    }
+    vibrate(durationMillis) {
+      this.callVoid('DtVibrate', 'execute', [durationMillis || 50]);
+    }
+    isDarkMode() {
+      return Boolean(this.call('DtIsDarkMode', 'execute'));
+    }
+    getAppColors() {
+      return this.callJson('DtGetAppColors', 'execute');
+    }
+    getDiagnosticReport() {
+      return this.call('DtGetDiagnosticReport', 'execute');
+    }
+    copyDiagnosticReport() {
+      this.callVoid('DtCopyDiagnosticReport', 'execute');
+    }
+    isSafeMode() {
+      return Boolean(this.call('DtIsSafeMode', 'execute'));
     }
   }
 

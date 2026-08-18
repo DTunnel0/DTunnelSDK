@@ -2,20 +2,27 @@
 
 ## Eventos semanticos (`sdk.on`)
 
-| Evento | Callback nativo | Payload no SDK |
+| Evento | Callback nativo / Alias legada | Payload no SDK |
 | --- | --- | --- |
-| `vpnState` | `DtVpnStateEvent(state)` | `DTunnelVPNState \| null` |
-| `vpnStartedSuccess` | `DtVpnStartedSuccessEvent()` | `undefined` |
-| `vpnStoppedSuccess` | `DtVpnStoppedSuccessEvent()` | `undefined` |
-| `newLog` | `DtNewLogEvent()` | `undefined` |
-| `newDefaultConfig` | `DtNewDefaultConfigEvent()` | `undefined` |
-| `checkUserStarted` | `DtCheckUserStartedEvent()` | `undefined` |
-| `checkUserResult` | `DtCheckUserResultEvent(json)` | `DTunnelCheckUserResult \| string \| null` |
-| `checkUserError` | `DtCheckUserErrorEvent(message)` | `string \| null` |
-| `messageError` | `DtMessageErrorEvent(json)` | `DTunnelMessage \| string \| null` |
-| `showSuccessToast` | `DtSuccessToastEvent(message)` | `string \| null` |
-| `showErrorToast` | `DtErrorToastEvent(message)` | `string \| null` |
+| `vpnState` | `DtVpnStateEvent(state)` / `dtVpnStateListener(state)` | `DTunnelVPNState \| null` |
+| `vpnStartedSuccess` | `DtVpnStartedSuccessEvent()` / `dtVpnStartedSuccessListener()` | `undefined` |
+| `vpnStoppedSuccess` | `DtVpnStoppedSuccessEvent()` / `dtVpnStoppedSuccessListener()` | `undefined` |
+| `newLog` | `DtNewLogEvent()` / `dtOnNewLogListener()` | `undefined` |
+| `newDefaultConfig` | `DtNewDefaultConfigEvent()` / `dtConfigClickListener()` | `undefined` |
+| `checkUserStarted` | `DtCheckUserStartedEvent()` / `dtCheckUserStartedListener()` | `undefined` |
+| `checkUserResult` | `DtCheckUserResultEvent(json)` / `dtCheckUserModelListener(json)` | `DTunnelCheckUserResult \| string \| null` |
+| `checkUserError` | `DtCheckUserErrorEvent(message)` / `dtCheckUserErrorListener(message)` | `string \| null` |
+| `messageError` | `DtMessageErrorEvent(json)` / `dtMessageErrorListener(json)` | `DTunnelMessage \| string \| null` |
+| `showSuccessToast` | `DtSuccessToastEvent(message)` / `dtShowSuccessToastListener(message)` | `string \| null` |
+| `showErrorToast` | `DtErrorToastEvent(message)` / `dtShowErrorToastListener(message)` | `string \| null` |
 | `notification` | `DtNotificationEvent(json)` | `DTunnelNotification \| string \| null` |
+| `localIp` | `DtLocalIpEvent(ip)` / `dtLocalIpListener(ip)` | `string \| null` |
+| `networkName` | `DtNetworkNameEvent(name)` / `dtNetworkNameListener(name)` | `string \| null` |
+| `pingResult` | `DtPingResultEvent(ping)` / `dtPingResultListener(ping)` | `string \| null` |
+| `checkingAppUpdate` | `DtCheckingAppUpdateEvent(isChecking)` / `dtCheckingAppUpdateListener(isChecking)` | `boolean \| string \| null` |
+| `airplaneState` | `DtAirplaneStateEvent(state)` / `dtAirplaneStateListener(state)` | `DTunnelAirplaneState \| string \| null` |
+| `hotSpotState` | `DtHotSpotStateEvent(status)` / `dtHotSpotStateListener(status)` | `DTunnelHotSpotStatus \| string \| null` |
+| `reloadRequest` | `DtReloadRequestEvent(value)` / `dtReloadRequestListener(value)` | `string \| null` |
 
 Observacao:
 
@@ -63,20 +70,27 @@ unbindVpn();
 
 ## Callbacks globais da bridge
 
-Quando `autoRegisterNativeEvents: true` (padrao), o SDK registra automaticamente no `window`:
+Quando `autoRegisterNativeEvents: true` (padrao), o SDK registra automaticamente no `window` tanto os nomes padronizados (`Dt...Event`) quanto as aliases legadas (`dt...Listener`):
 
-- `DtVpnStateEvent`
-- `DtVpnStartedSuccessEvent`
-- `DtVpnStoppedSuccessEvent`
-- `DtNewLogEvent`
-- `DtNewDefaultConfigEvent`
-- `DtCheckUserStartedEvent`
-- `DtCheckUserResultEvent`
-- `DtCheckUserErrorEvent`
-- `DtMessageErrorEvent`
-- `DtSuccessToastEvent`
-- `DtErrorToastEvent`
+- `DtVpnStateEvent` / `dtVpnStateListener`
+- `DtVpnStartedSuccessEvent` / `dtVpnStartedSuccessListener`
+- `DtVpnStoppedSuccessEvent` / `dtVpnStoppedSuccessListener`
+- `DtNewLogEvent` / `dtOnNewLogListener`
+- `DtNewDefaultConfigEvent` / `dtConfigClickListener`
+- `DtCheckUserStartedEvent` / `dtCheckUserStartedListener`
+- `DtCheckUserResultEvent` / `dtCheckUserModelListener`
+- `DtCheckUserErrorEvent` / `dtCheckUserErrorListener`
+- `DtMessageErrorEvent` / `dtMessageErrorListener`
+- `DtSuccessToastEvent` / `dtShowSuccessToastListener`
+- `DtErrorToastEvent` / `dtShowErrorToastListener`
 - `DtNotificationEvent`
+- `DtLocalIpEvent` / `dtLocalIpListener`
+- `DtNetworkNameEvent` / `dtNetworkNameListener`
+- `DtPingResultEvent` / `dtPingResultListener`
+- `DtCheckingAppUpdateEvent` / `dtCheckingAppUpdateListener`
+- `DtAirplaneStateEvent` / `dtAirplaneStateListener`
+- `DtHotSpotStateEvent` / `dtHotSpotStateListener`
+- `DtReloadRequestEvent` / `dtReloadRequestListener`
 
 Se precisar controlar manualmente:
 
@@ -86,4 +100,3 @@ sdk.registerNativeEventHandlers();
 // ...
 sdk.unregisterNativeEventHandlers();
 ```
-

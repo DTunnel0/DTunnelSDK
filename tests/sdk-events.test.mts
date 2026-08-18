@@ -83,3 +83,58 @@ test('parses checkUserResult payload as JSON on native event dispatch', () => {
 
   sdk.destroy();
 });
+
+test('maps legacy camelCase listener functions to semantic events', () => {
+  const { sdk, windowRef } = createSdk();
+  let vpnStateValue: string | null = null;
+  let newConfigCalled = false;
+
+  sdk.on('vpnState', (event) => {
+    vpnStateValue = event.payload as string;
+  });
+
+  sdk.on('newDefaultConfig', () => {
+    newConfigCalled = true;
+  });
+
+  assert.equal(typeof windowRef.dtVpnStateListener, 'function');
+  assert.equal(typeof windowRef.dtConfigClickListener, 'function');
+
+  (windowRef.dtVpnStateListener as (state: string) => void)('CONNECTED');
+  (windowRef.dtConfigClickListener as () => void)();
+
+  assert.equal(vpnStateValue, 'CONNECTED');
+  assert.equal(newConfigCalled, true);
+
+  sdk.destroy();
+});
+
+test('dispatches newly supported network, device and ping events', () => {
+  const { sdk, windowRef } = createSdk();
+  let localIpValue: string | null = null;
+  let pingValue: string | null = null;
+  let airplaneValue: string | null = null;
+
+  sdk.on('localIp', (event) => {
+    localIpValue = event.payload as string;
+  });
+
+  sdk.on('pingResult', (event) => {
+    pingValue = event.payload as string;
+  });
+
+  sdk.on('airplaneState', (event) => {
+    airplaneValue = event.payload as string;
+  });
+
+  (windowRef.DtLocalIpEvent as (ip: string) => void)('192.168.1.50');
+  (windowRef.DtPingResultEvent as (ping: string) => void)('25ms');
+  (windowRef.DtAirplaneStateEvent as (state: string) => void)('ACTIVE');
+
+  assert.equal(localIpValue, '192.168.1.50');
+  assert.equal(pingValue, '25ms');
+  assert.equal(airplaneValue, 'ACTIVE');
+
+  sdk.destroy();
+});
+

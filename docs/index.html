@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DTunnel SDK - Documentação Oficial & Referência da API</title>
+  <meta name="description" content="Documentação completa do DTunnel SDK para desenvolvimento de interfaces Web e layouts HTML/React integrados ao DTunnel VPN Android.">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <a href="#" class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="brand-text">
+        DTunnel SDK
+        <span class="brand-badge">v1.2.1</span>
+      </div>
+    </a>
+
+    <div class="header-search">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="docSearchInput" class="search-input" placeholder="Buscar módulos, métodos, eventos...">
+        <span class="search-kbd">Ctrl K</span>
+      </div>
+      <div id="docSearchResults" class="search-results"></div>
+    </div>
+
+    <div class="header-links">
+      <a href="#playground" class="header-btn primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Playground
+      </a>
+      <a href="https://github.com/DTunnel0/DTunnelSDK" target="_blank" rel="noreferrer" class="header-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Menu">&#9776;</button>
+    </div>
+  </header>
+
+  <!-- Main Documentation Layout -->
+  <div class="doc-layout">
+
+    <!-- Sidebar Navigation -->
+    <aside id="docSidebar" class="sidebar">
+      <div class="sidebar-group">
+        <div class="sidebar-heading">Primeiros Passos</div>
+        <ul class="sidebar-links">
+          <li><a href="#visao-geral" class="sidebar-link active">Visão Geral</a></li>
+          <li><a href="#instalacao" class="sidebar-link">Instalação</a></li>
+          <li><a href="#cli-init" class="sidebar-link">Gerador CLI (init) <span class="sidebar-tag">Recomendado</span></a></li>
+          <li><a href="#quickstart" class="sidebar-link">Guia Rápido</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-heading">Ferramentas</div>
+        <ul class="sidebar-links">
+          <li><a href="#playground" class="sidebar-link">Playground Interativo <span class="sidebar-tag new">Live</span></a></li>
+          <li><a href="#simulador" class="sidebar-link">Simulador Browser</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-heading">Módulos da API</div>
+        <ul class="sidebar-links">
+          <li><a href="#modulo-main" class="sidebar-link">sdk.main <span class="sidebar-tag">VPN & Ads</span></a></li>
+          <li><a href="#modulo-config" class="sidebar-link">sdk.config <span class="sidebar-tag">Configs & Import</span></a></li>
+          <li><a href="#modulo-android" class="sidebar-link">sdk.android <span class="sidebar-tag">Device & UI</span></a></li>
+          <li><a href="#modulo-app" class="sidebar-link">sdk.app <span class="sidebar-tag">App & Telas</span></a></li>
+          <li><a href="#modulo-text" class="sidebar-link">sdk.text <span class="sidebar-tag">i18n</span></a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-heading">Eventos & Frameworks</div>
+        <ul class="sidebar-links">
+          <li><a href="#eventos" class="sidebar-link">Eventos & Callbacks</a></li>
+          <li><a href="#react" class="sidebar-link">Integração React</a></li>
+          <li><a href="#bridge-sem-sdk" class="sidebar-link">Bridge Direta (Sem SDK)</a></li>
+          <li><a href="#build-android" class="sidebar-link">Build para Android</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- Hero Section -->
+      <section id="visao-geral" class="hero-section">
+        <div class="hero-tagline">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+          Documentação Oficial do Desenvolvedor
+        </div>
+        <h1 class="hero-title">Construa Interfaces Web Incríveis para o <span>DTunnel VPN</span></h1>
+        <p class="hero-subtitle">
+          O <strong>DTunnel SDK</strong> é a biblioteca padrão em TypeScript/JavaScript para criar layouts HTML, React e WebViews completas com controle total de conexão VPN, categorias de servidores, importação offline, anúncios premiados e integração com hardware Android.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#cli-init" class="btn-hero primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            Criar Projeto com CLI
+          </a>
+          <a href="#playground" class="btn-hero secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Testar no Playground
+          </a>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Bridge Nativa Robusta</div>
+            <p class="feature-desc">Controle completo de VPN, anúncios premiados, status em tempo real e tempo restante de conexão.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <div class="feature-title">Importação Criptografada</div>
+            <p class="feature-desc">Chaves públicas, importação offline e compartilhamento seguro de configurações.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🧪</div>
+            <div class="feature-title">Simulador Completo</div>
+            <p class="feature-desc">Desenvolva e visualize layouts 100% no navegador (Chrome, Edge, Firefox) sem precisar do APK Android.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚛️</div>
+            <div class="feature-title">React & TypeScript First</div>
+            <p class="feature-desc">Hooks prontos para React 18+, tipagens estritas e autocompletion inteligente no VS Code.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Instalação -->
+      <section id="instalacao">
+        <h2>Instalação</h2>
+        <p>Instale o pacote via seu gerenciador de pacotes favorito ou use a CDN:</p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <div class="code-tabs">
+              <button class="code-tab active" data-lang="npm">npm</button>
+              <button class="code-tab" data-lang="pnpm">pnpm</button>
+              <button class="code-tab" data-lang="yarn">yarn</button>
+              <button class="code-tab" data-lang="cdn">CDN (HTML)</button>
+            </div>
+            <button class="copy-btn">Copiar</button>
+          </div>
+          <pre data-lang="npm"><code>npm install dtunnel-sdk</code></pre>
+          <pre data-lang="pnpm" style="display:none"><code>pnpm add dtunnel-sdk</code></pre>
+          <pre data-lang="yarn" style="display:none"><code>yarn add dtunnel-sdk</code></pre>
+          <pre data-lang="cdn" style="display:none"><code>&lt;!-- Core do SDK --&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.js"&gt;&lt;/script&gt;
+&lt;!-- Simulador opcional para testes no PC --&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.simulator.js"&gt;&lt;/script&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- CLI Init -->
+      <section id="cli-init">
+        <h2>Gerador de Projetos Pronto (`init`)</h2>
+        <p>A forma mais rápida e recomendada de iniciar um novo layout é usar o comando oficial `init`. Ele cria a estrutura pronta com scripts de build empacotados para o Android:</p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span class="code-title">Terminal</span>
+            <button class="copy-btn">Copiar</button>
+          </div>
+          <pre><code># Modo interativo (selecione o template no terminal)
+npx dtunnel-sdk init meu-layout
+
+# Ou crie direto com o template desejado:
+npx dtunnel-sdk init meu-layout --template react-typescript
+npx dtunnel-sdk init meu-layout --template typescript
+npx dtunnel-sdk init meu-layout --template cdn</code></pre>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong>Script `build:android` Automático:</strong>
+            <p>Todos os templates gerados pela CLI já incluem o comando <code>npm run build:android</code>, que compila todo o JavaScript e CSS em um arquivo único <code>dist/build.html</code> compatível diretamente com o WebView do DTunnel VPN.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quickstart -->
+      <section id="quickstart">
+        <h2>Guia Rápido de Uso</h2>
+        <p>Veja como instanciar o SDK, escutar eventos da VPN e disparar ações:</p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span class="code-title">src/index.ts</span>
+            <button class="copy-btn">Copiar</button>
+          </div>
+          <pre><code>import DTunnelSDK from 'dtunnel-sdk';
+
+// 1. Inicializa o SDK
+const sdk = new DTunnelSDK({
+  strict: false,                 // Não lança exceção caso um método não exista
+  autoRegisterNativeEvents: true // Registra automaticamente os callbacks globais
+});
+
+// 2. Escuta mudanças de estado da VPN
+sdk.on('vpnState', (event) => {
+  console.log('Estado da VPN:', event.payload); // 'CONNECTED' | 'DISCONNECTED' | 'CONNECTING'
+});
+
+// 3. Ações
+document.getElementById('btnConnect')?.addEventListener('click', () => {
+  sdk.main.startVpn();
+});
+
+document.getElementById('btnDisconnect')?.addEventListener('click', () => {
+  sdk.main.stopVpn();
+});</code></pre>
+        </div>
+      </section>
+
+      <!-- Interactive Playground -->
+      <section id="playground" class="playground-section">
+        <div class="playground-header">
+          <div>
+            <h2 class="playground-title">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Playground Interativo
+            </h2>
+            <p style="margin:4px 0 0;font-size:0.9rem;color:var(--text-muted)">
+              Execute métodos reais do SDK e veja a resposta no terminal em tempo real.
+            </p>
+          </div>
+          <button id="clearConsoleBtn" class="header-btn" style="padding:0.4rem 0.8rem;font-size:0.8rem">Limpar Terminal</button>
+        </div>
+
+        <div class="playground-grid">
+          <div class="playground-controls">
+            <!-- VPN & Ads -->
+            <div class="control-group">
+              <div class="control-group-title">
+                <span>Controle de VPN & Anúncios</span>
+                <span style="font-size:0.7rem;color:var(--accent-teal)">sdk.main</span>
+              </div>
+              <div class="action-buttons">
+                <button class="btn-action" data-play-action="getVpnState">getVpnState()</button>
+                <button class="btn-action" data-play-action="startVpn">startVpn()</button>
+                <button class="btn-action" data-play-action="stopVpn">stopVpn()</button>
+                <button class="btn-action" data-play-action="getRemainingTime">getRemainingTimer()</button>
+                <button class="btn-action" data-play-action="showAdsRewarded">showAdsRewarded()</button>
+              </div>
+            </div>
+
+            <!-- Configs & Categorias -->
+            <div class="control-group">
+              <div class="control-group-title">
+                <span>Categorias & Configurações</span>
+                <span style="font-size:0.7rem;color:var(--accent-teal)">sdk.config</span>
+              </div>
+              <div class="action-buttons">
+                <button class="btn-action" data-play-action="getCategories">getCategories()</button>
+                <button class="btn-action" data-play-action="getSelectedCategory">getSelectedCategory()</button>
+                <button class="btn-action" data-play-action="getConfigsByCategory">getConfigsByCategory(1)</button>
+                <button class="btn-action" data-play-action="getImportPublicKey">getImportPublicKey()</button>
+                <button class="btn-action" data-play-action="getUser">getUser()</button>
+              </div>
+            </div>
+
+            <!-- Android & Sistema -->
+            <div class="control-group">
+              <div class="control-group-title">
+                <span>Dispositivo & Sistema</span>
+                <span style="font-size:0.7rem;color:var(--accent-teal)">sdk.android</span>
+              </div>
+              <div class="action-buttons">
+                <button class="btn-action" data-play-action="isDarkMode">isDarkMode()</button>
+                <button class="btn-action" data-play-action="getAppColors">getAppColors()</button>
+                <button class="btn-action" data-play-action="showToast">showToast(msg)</button>
+                <button class="btn-action" data-play-action="copyDiagnostic">copyDiagnosticReport()</button>
+                <button class="btn-action" data-play-action="createSnapshot">createDebugSnapshot()</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Console Terminal Output -->
+          <div class="playground-console">
+            <div class="console-bar">
+              <span>Terminal de Saída</span>
+              <span style="color:var(--accent-emerald)">● Simulador Ativo</span>
+            </div>
+            <div id="consoleOutput" class="console-output"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Módulo: sdk.main -->
+      <section id="modulo-main">
+        <h2>Módulo `sdk.main` (VPN, Conexão e Anúncios)</h2>
+        <p>Controla o ciclo de vida da conexão VPN, diálogos do sistema, checagem de usuário e anúncios premiados.</p>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.main.startVpn(): void</span>
+            <span class="api-badge">Bridge: DtExecuteVpnStart</span>
+          </div>
+          <div class="api-card-body">
+            <p>Inicia a conexão VPN com a configuração e credenciais atualmente selecionadas.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.main.stopVpn(): void</span>
+            <span class="api-badge">Bridge: DtExecuteVpnStop</span>
+          </div>
+          <div class="api-card-body">
+            <p>Interrompe a conexão VPN ativa.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.main.getVpnState(): DTunnelVPNState | null</span>
+            <span class="api-badge">Bridge: DtGetVpnState</span>
+          </div>
+          <div class="api-card-body">
+            <p>Retorna o estado atual da VPN: <code>'CONNECTED' | 'DISCONNECTED' | 'CONNECTING' | 'STOPPING' | 'NO_NETWORK' | 'AUTH' | 'AUTH_FAILED'</code>.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.main.isVpnRunning(): boolean</span>
+            <span class="api-badge">Bridge: DtIsVpnRunning</span>
+          </div>
+          <div class="api-card-body">
+            <p>Retorna <code>true</code> se o serviço de VPN estiver ativo e em execução no Android.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.main.showAdsRewardedDialog(): void</span>
+            <span class="api-badge">Bridge: DtShowDialogAdsRewarded</span>
+          </div>
+          <div class="api-card-body">
+            <p>Abre o diálogo nativo para exibição de vídeo premiado (adicionando tempo de conexão ao usuário).</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.main.getRemainingConnectionTimerText(): string | null</span>
+            <span class="api-badge">Bridge: DtGetRemainingConnectionTimerText</span>
+          </div>
+          <div class="api-card-body">
+            <p>Retorna o tempo restante de conexão formatado em texto (ex: <code>"02:45:10"</code>).</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.main.startCheckUser(): void</span>
+            <span class="api-badge">Bridge: DtStartCheckUser</span>
+          </div>
+          <div class="api-card-body">
+            <p>Dispara a verificação das credenciais e validade do usuário via API SSH/Painel. O resultado chega pelo evento <code>checkUserResult</code>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Módulo: sdk.config -->
+      <section id="modulo-config">
+        <h2>Módulo `sdk.config` (Categorias, Servidores e Importação)</h2>
+        <p>Gerencia configurações de servidores, categorias, credenciais e importação segura offline.</p>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.config.getCategories(): DTunnelCategorySummary[] | null</span>
+            <span class="api-badge">Bridge: DtGetCategories</span>
+          </div>
+          <div class="api-card-body">
+            <p>Retorna a lista resumida de categorias disponíveis com contagem de configurações associadas (<code>{ id, name, color, sorter, count }</code>).</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.config.getConfigsByCategory(categoryId: number): DTunnelConfigListItem[] | null</span>
+            <span class="api-badge">Bridge: DtGetConfigsByCategory</span>
+          </div>
+          <div class="api-card-body">
+            <p>Retorna todas as configurações pertencentes à categoria informada.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.config.getSelectedConfig(): DTunnelDefaultConfig | null</span>
+            <span class="api-badge">Bridge: DtGetSelectedConfig</span>
+          </div>
+          <div class="api-card-body">
+            <p>Retorna o objeto completo da configuração que está selecionada para conexão.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.config.setConfig(id: number): void</span>
+            <span class="api-badge">Bridge: DtSetConfig</span>
+          </div>
+          <div class="api-card-body">
+            <p>Define a configuração ativa pelo seu ID numérico.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.config.getImportPublicKey(): string | null</span>
+            <span class="api-badge">Bridge: DtGetImportPublicKey</span>
+          </div>
+          <div class="api-card-body">
+            <p>Retorna a chave pública criptográfica do aplicativo utilizada para criptografar envelopes de importação offline.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.config.importConfig(payload: string): void</span>
+            <span class="api-badge">Bridge: DtImportConfig</span>
+          </div>
+          <div class="api-card-body">
+            <p>Importa um envelope criptografado de configuração.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.config.getUser(): DTunnelUserCredentials | null</span>
+            <span class="api-badge">Bridge: DtGetUser</span>
+          </div>
+          <div class="api-card-body">
+            <p>Retorna as credenciais salvas do usuário (<code>{ username, password, uuid }</code>).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Módulo: sdk.android -->
+      <section id="modulo-android">
+        <h2>Módulo `sdk.android` (Hardware & Sistema Android)</h2>
+        <p>Acesso a recursos nativos do sistema operacional Android.</p>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.android.copyToClipboard(text: string): void</span>
+            <span class="api-badge">Bridge: DtCopyToClipboard</span>
+          </div>
+          <div class="api-card-body">
+            <p>Copia um texto diretamente para a área de transferência do Android, contornando bloqueios de permissão do navegador.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.android.getClipboardText(): string | null</span>
+            <span class="api-badge">Bridge: DtGetClipboardText</span>
+          </div>
+          <div class="api-card-body">
+            <p>Lê o texto atual armazenado na área de transferência.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.android.showToast(message: string): void</span>
+            <span class="api-badge">Bridge: DtShowToast</span>
+          </div>
+          <div class="api-card-body">
+            <p>Exibe um Toast nativo flutuante na tela do dispositivo.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.android.vibrate(durationMillis?: number): void</span>
+            <span class="api-badge">Bridge: DtVibrate</span>
+          </div>
+          <div class="api-card-body">
+            <p>Aciona o motor de vibração tátil do dispositivo (duração padrão: 50ms).</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.android.isDarkMode(): boolean</span>
+            <span class="api-badge">Bridge: DtIsDarkMode</span>
+          </div>
+          <div class="api-card-body">
+            <p>Retorna <code>true</code> se o tema escuro estiver ativo no sistema operacional.</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.android.getAppColors(): DTunnelAppColors | null</span>
+            <span class="api-badge">Bridge: DtGetAppColors</span>
+          </div>
+          <div class="api-card-body">
+            <p>Retorna a paleta de cores hexadecimais configuradas dinamicamente no app Android (<code>{ backgroundColor, cardColor, textColor, buttonColor... }</code>).</p>
+          </div>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-signature">sdk.android.getDiagnosticReport(): string | null</span>
+            <span class="api-badge">Bridge: DtGetDiagnosticReport</span>
+          </div>
+          <div class="api-card-body">
+            <p>Gera um relatório completo de diagnóstico com modelo do aparelho, versão do Android, IP, logs recentes e status de rede.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Eventos & Callbacks -->
+      <section id="eventos">
+        <h2>Eventos & Callbacks Nativos</h2>
+        <p>O SDK padroniza todos os eventos nativos disparados pelo app através do método <code>sdk.on(eventName, handler)</code>:</p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Evento Semântico</th>
+                <th>Callback Nativo</th>
+                <th>Descrição do Payload</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>vpnState</code></td>
+                <td><code>DtVpnStateEvent</code></td>
+                <td>Status atual da VPN (<code>CONNECTED</code>, <code>CONNECTING</code>, etc.)</td>
+              </tr>
+              <tr>
+                <td><code>vpnStartedSuccess</code></td>
+                <td><code>DtVpnStartedSuccessEvent</code></td>
+                <td>Disparado quando o handshake da VPN foi concluído com sucesso.</td>
+              </tr>
+              <tr>
+                <td><code>vpnStoppedSuccess</code></td>
+                <td><code>DtVpnStoppedSuccessEvent</code></td>
+                <td>Disparado quando o túnel foi completamente encerrado.</td>
+              </tr>
+              <tr>
+                <td><code>newDefaultConfig</code></td>
+                <td><code>DtNewDefaultConfigEvent</code></td>
+                <td>Disparado quando o usuário troca a configuração selecionada.</td>
+              </tr>
+              <tr>
+                <td><code>checkUserResult</code></td>
+                <td><code>DtCheckUserResultEvent</code></td>
+                <td>Objeto JSON com conexões ativas, limite e data de validade.</td>
+              </tr>
+              <tr>
+                <td><code>checkUserError</code></td>
+                <td><code>DtCheckUserErrorEvent</code></td>
+                <td>Mensagem de erro na checagem de usuário.</td>
+              </tr>
+              <tr>
+                <td><code>messageError</code></td>
+                <td><code>DtMessageErrorEvent</code></td>
+                <td>Objeto JSON com título e descrição de erro do app.</td>
+              </tr>
+              <tr>
+                <td><code>showSuccessToast</code></td>
+                <td><code>DtSuccessToastEvent</code></td>
+                <td>Texto da mensagem de sucesso a ser exibida.</td>
+              </tr>
+              <tr>
+                <td><code>showErrorToast</code></td>
+                <td><code>DtErrorToastEvent</code></td>
+                <td>Texto da mensagem de erro a ser exibida.</td>
+              </tr>
+              <tr>
+                <td><code>notification</code></td>
+                <td><code>DtNotificationEvent</code></td>
+                <td>Notificação push recebida em primeiro plano.</td>
+              </tr>
+              <tr>
+                <td><code>localIp</code></td>
+                <td><code>DtLocalIpEvent</code></td>
+                <td>Endereço IP local atual do dispositivo.</td>
+              </tr>
+              <tr>
+                <td><code>networkName</code></td>
+                <td><code>DtNetworkNameEvent</code></td>
+                <td>Nome da operadora móvel ou SSID do Wi-Fi conectado.</td>
+              </tr>
+              <tr>
+                <td><code>pingResult</code></td>
+                <td><code>DtPingResultEvent</code></td>
+                <td>Latência de ping em milissegundos.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- React SDK -->
+      <section id="react">
+        <h2>Integração com React</h2>
+        <p>O pacote inclui bindings oficiais para React 18+ via <code>dtunnel-sdk/react</code>:</p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span class="code-title">App.tsx</span>
+            <button class="copy-btn">Copiar</button>
+          </div>
+          <pre><code>import React, { useState } from 'react';
+import { DTunnelSDKProvider, useDTunnelSDK, useDTunnelEvent } from 'dtunnel-sdk/react';
+
+function VpnDashboard() {
+  const sdk = useDTunnelSDK();
+  const [vpnState, setVpnState] = useState(sdk.main.getVpnState());
+
+  // Escuta reativamente eventos da VPN
+  useDTunnelEvent('vpnState', (event) => {
+    setVpnState(event.payload);
+  });
+
+  return (
+    &lt;div className="card"&gt;
+      &lt;h2&gt;Status: {vpnState ?? 'Desconectado'}&lt;/h2&gt;
+      &lt;button onClick={() =&gt; sdk.main.startVpn()}&gt;Conectar&lt;/button&gt;
+      &lt;button onClick={() =&gt; sdk.main.stopVpn()}&gt;Desconectar&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default function App() {
+  return (
+    &lt;DTunnelSDKProvider options={{ strict: false, autoRegisterNativeEvents: true }}&gt;
+      &lt;VpnDashboard /&gt;
+    &lt;/DTunnelSDKProvider&gt;
+  );
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Simulador Browser -->
+      <section id="simulador">
+        <h2>Simulador para Desenvolvimento Local</h2>
+        <p>Desenvolva seu layout no seu computador sem precisar do celular ou do Android Studio instalado:</p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span class="code-title">main.ts</span>
+            <button class="copy-btn">Copiar</button>
+          </div>
+          <pre><code>import DTunnelSDK from 'dtunnel-sdk';
+import { installDTunnelSDKSimulator } from 'dtunnel-sdk/simulator';
+
+// Instala os objetos simulados no window apenas se não estiver no WebView real
+const simulator = installDTunnelSDKSimulator({
+  autoEvents: true // Simula transições automáticas (CONNECTING -> CONNECTED)
+});
+
+// Você pode customizar os dados de teste:
+simulator.setState({
+  username: 'usuario_teste',
+  remainingConnectionTimerText: '04:20:00'
+});
+
+const sdk = new DTunnelSDK();
+console.log('Configs mockadas:', sdk.config.getConfigs());</code></pre>
+        </div>
+      </section>
+
+      <!-- Build Android -->
+      <section id="build-android">
+        <h2>Compilação & Deploy para o Android</h2>
+        <p>Para empacotar seu layout para uso no DTunnel VPN:</p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span class="code-title">Terminal</span>
+            <button class="copy-btn">Copiar</button>
+          </div>
+          <pre><code># Gera o bundle único html autocontido (inlining de CSS e JS)
+npm run build:android
+
+# Saída gerada:
+# dist/build.html -> Copie este arquivo para o app Android ou envie para seu CDN</code></pre>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="https://github.com/DTunnel0/DTunnelSDK" target="_blank" rel="noreferrer">GitHub Repository</a>
+      <a href="https://www.npmjs.com/package/dtunnel-sdk" target="_blank" rel="noreferrer">npm Package</a>
+      <a href="#playground">Playground</a>
+      <a href="#modulo-main">Referência da API</a>
+    </div>
+    <p>© 2026 DTunnel VPN Project. Todos os direitos reservados.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="../sdk/dtunnel-sdk.js"></script>
+  <script src="../sdk/dtunnel-sdk.simulator.js"></script>
+  <script>
+    // Fallback script tags caso aberto via GitHub Pages ou link absoluto
+    if (typeof window.DTunnelSDK === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.js"><\/script>');
+      document.write('<script src="https://cdn.jsdelivr.net/npm/dtunnel-sdk@latest/sdk/dtunnel-sdk.simulator.js"><\/script>');
+    }
+  </script>
+  <script src="./app.js"></script>
+</body>
+</html>

@@ -7,18 +7,33 @@
   const BRIDGE_OBJECT_NAMES = Object.freeze([
     'DtSetConfig',
     'DtGetConfigs',
+    'DtGetCategories',
+    'DtGetSelectedCategory',
+    'DtGetSelectedCategoryId',
+    'DtGetConfigsByCategory',
+    'DtGetSelectedConfig',
+    'DtGetSelectedConfigId',
+    'DtGetConfigCount',
     'DtGetDefaultConfig',
     'DtExecuteDialogConfig',
+    'DtGetImportPublicKey',
+    'DtCopyImportPublicKey',
+    'DtImportConfig',
+    'DtHasPendingConfigImport',
+    'DtGetPendingConfigImportDetails',
     'DtUsername',
     'DtPassword',
     'DtGetLocalConfigVersion',
     'DtCDNCount',
+    'DtEndpointCount',
     'DtUuid',
+    'DtGetUser',
     'DtGetLogs',
     'DtClearLogs',
     'DtExecuteVpnStart',
     'DtExecuteVpnStop',
     'DtGetVpnState',
+    'DtIsVpnRunning',
     'DtStartAppUpdate',
     'DtStartCheckUser',
     'DtShowLoggerDialog',
@@ -28,6 +43,11 @@
     'DtAirplaneState',
     'DtAppIsCurrentAssistant',
     'DtShowMenuDialog',
+    'DtShowDialogAdsRewarded',
+    'DtIsAdsEnabled',
+    'DtGetRemainingConnectionTime',
+    'DtGetRemainingConnectionTimerText',
+    'DtGetLastVpnError',
     'DtGetNetworkName',
     'DtGetPingResult',
     'DtTranslateText',
@@ -53,6 +73,15 @@
     'DtAppVersion',
     'DtActionHandler',
     'DtCloseApp',
+    'DtCopyToClipboard',
+    'DtGetClipboardText',
+    'DtShowToast',
+    'DtVibrate',
+    'DtIsDarkMode',
+    'DtGetAppColors',
+    'DtGetDiagnosticReport',
+    'DtCopyDiagnosticReport',
+    'DtIsSafeMode',
   ]);
 
   const NATIVE_CALLBACK_NAMES = Object.freeze([
@@ -68,6 +97,31 @@
     'DtSuccessToastEvent',
     'DtErrorToastEvent',
     'DtNotificationEvent',
+    'DtLocalIpEvent',
+    'DtNetworkNameEvent',
+    'DtPingResultEvent',
+    'DtCheckingAppUpdateEvent',
+    'DtAirplaneStateEvent',
+    'DtHotSpotStateEvent',
+    'DtReloadRequestEvent',
+    'dtVpnStateListener',
+    'dtVpnStartedSuccessListener',
+    'dtVpnStoppedSuccessListener',
+    'dtOnNewLogListener',
+    'dtConfigClickListener',
+    'dtCheckUserStartedListener',
+    'dtCheckUserModelListener',
+    'dtCheckUserErrorListener',
+    'dtMessageErrorListener',
+    'dtShowSuccessToastListener',
+    'dtShowErrorToastListener',
+    'dtLocalIpListener',
+    'dtNetworkNameListener',
+    'dtPingResultListener',
+    'dtCheckingAppUpdateListener',
+    'dtAirplaneStateListener',
+    'dtHotSpotStateListener',
+    'dtReloadRequestListener',
   ]);
 
   const SEMANTIC_EVENT_TO_CALLBACK = Object.freeze({
@@ -83,6 +137,13 @@
     showSuccessToast: 'DtSuccessToastEvent',
     showErrorToast: 'DtErrorToastEvent',
     notification: 'DtNotificationEvent',
+    localIp: 'DtLocalIpEvent',
+    networkName: 'DtNetworkNameEvent',
+    pingResult: 'DtPingResultEvent',
+    checkingAppUpdate: 'DtCheckingAppUpdateEvent',
+    airplaneState: 'DtAirplaneStateEvent',
+    hotSpotState: 'DtHotSpotStateEvent',
+    reloadRequest: 'DtReloadRequestEvent',
   });
 
   const JSON_EVENT_NAMES = Object.freeze([
@@ -216,6 +277,9 @@
         icon: defaultItem.icon || '',
       },
       selectedConfigId: defaultItem.id,
+      importPublicKey: 'dtunnel_pub_key_mock_123',
+      hasPendingImport: false,
+      pendingImportDetails: null,
       logs: [],
       vpnState: 'DISCONNECTED',
       airplaneState: 'INACTIVE',
@@ -223,6 +287,27 @@
       localIp: '192.168.0.2',
       networkName: 'dtunnel-Wifi',
       pingResult: '42ms',
+      adsEnabled: true,
+      remainingConnectionTime: 3600,
+      remainingConnectionTimerText: '01:00:00',
+      lastVpnError: null,
+      clipboardText: '',
+      isDarkMode: true,
+      appColors: {
+        backgroundColor: '#121212',
+        cardColor: '#1e1e1e',
+        cardStatusColor: '#2d2d2d',
+        cardConfigColor: '#2d2d2d',
+        dialogBackgroundColor: '#1e1e1e',
+        dialogLoggerColor: '#121212',
+        borderColor: '#333333',
+        inputColor: '#2d2d2d',
+        textColor: '#ffffff',
+        buttonColor: '#532e7d',
+        iconColor: '#a855f7',
+      },
+      diagnosticReport: 'DTunnel Diagnostic Report (Simulator)',
+      isSafeMode: false,
       checkUserResult: {
         username: 'dtunnel-user',
         count_connections: '1',
@@ -423,6 +508,76 @@
       () => toJsonStringOrNull(state.configs),
     );
 
+    bridgeObjects.DtGetCategories = createExecuteBridgeObject(
+      'DtGetCategories',
+      () => {
+        const categories = Array.isArray(state.configs)
+          ? state.configs.map((cat) => ({
+              id: cat.id,
+              name: cat.name,
+              sorter: cat.sorter,
+              color: cat.color,
+              count: Array.isArray(cat.items) ? cat.items.length : 0,
+            }))
+          : [];
+        return toJsonStringOrNull(categories);
+      },
+    );
+
+    bridgeObjects.DtGetSelectedCategory = createExecuteBridgeObject(
+      'DtGetSelectedCategory',
+      () => {
+        const selected = findSelectedConfig(state.configs, state.selectedConfigId);
+        if (!selected || !selected.category) return null;
+        return toJsonStringOrNull({
+          id: selected.category.id,
+          name: selected.category.name,
+          sorter: selected.category.sorter,
+          color: selected.category.color,
+        });
+      },
+    );
+
+    bridgeObjects.DtGetSelectedCategoryId = createExecuteBridgeObject(
+      'DtGetSelectedCategoryId',
+      () => {
+        const selected = findSelectedConfig(state.configs, state.selectedConfigId);
+        return selected && selected.category ? selected.category.id : -1;
+      },
+    );
+
+    bridgeObjects.DtGetConfigsByCategory = createExecuteBridgeObject(
+      'DtGetConfigsByCategory',
+      (categoryId) => {
+        const targetId = toInteger(categoryId, -1);
+        const cat = Array.isArray(state.configs)
+          ? state.configs.find((c) => c.id === targetId)
+          : null;
+        return toJsonStringOrNull(cat && Array.isArray(cat.items) ? cat.items : []);
+      },
+    );
+
+    bridgeObjects.DtGetSelectedConfig = createExecuteBridgeObject(
+      'DtGetSelectedConfig',
+      () => toJsonStringOrNull(state.defaultConfig),
+    );
+
+    bridgeObjects.DtGetSelectedConfigId = createExecuteBridgeObject(
+      'DtGetSelectedConfigId',
+      () => toInteger(state.selectedConfigId, -1),
+    );
+
+    bridgeObjects.DtGetConfigCount = createExecuteBridgeObject(
+      'DtGetConfigCount',
+      () => {
+        if (!Array.isArray(state.configs)) return 0;
+        return state.configs.reduce(
+          (acc, cat) => acc + (Array.isArray(cat.items) ? cat.items.length : 0),
+          0,
+        );
+      },
+    );
+
     bridgeObjects.DtGetDefaultConfig = createExecuteBridgeObject(
       'DtGetDefaultConfig',
       () => toJsonStringOrNull(state.defaultConfig),
@@ -433,6 +588,36 @@
       () => {
         appendLog('INFO', 'Dialogo de config aberto');
       },
+    );
+
+    bridgeObjects.DtGetImportPublicKey = createExecuteBridgeObject(
+      'DtGetImportPublicKey',
+      () => String(state.importPublicKey || ''),
+    );
+
+    bridgeObjects.DtCopyImportPublicKey = createExecuteBridgeObject(
+      'DtCopyImportPublicKey',
+      () => {
+        state.clipboardText = String(state.importPublicKey || '');
+        appendLog('INFO', 'Chave de importacao copiada (simulado)');
+      },
+    );
+
+    bridgeObjects.DtImportConfig = createExecuteBridgeObject(
+      'DtImportConfig',
+      (payload) => {
+        appendLog('INFO', `Config importada (simulado): ${payload}`);
+      },
+    );
+
+    bridgeObjects.DtHasPendingConfigImport = createExecuteBridgeObject(
+      'DtHasPendingConfigImport',
+      () => Boolean(state.hasPendingImport),
+    );
+
+    bridgeObjects.DtGetPendingConfigImportDetails = createExecuteBridgeObject(
+      'DtGetPendingConfigImportDetails',
+      () => toJsonStringOrNull(state.pendingImportDetails),
     );
 
     bridgeObjects.DtUsername = createGetSetBridgeObject(
@@ -461,12 +646,27 @@
       () => toInteger(state.cdnCount, 0),
     );
 
+    bridgeObjects.DtEndpointCount = createExecuteBridgeObject(
+      'DtEndpointCount',
+      () => toInteger(state.cdnCount, 0),
+    );
+
     bridgeObjects.DtUuid = createGetSetBridgeObject(
       'DtUuid',
       () => state.uuid,
       (value) => {
         state.uuid = value == null ? '' : String(value);
       },
+    );
+
+    bridgeObjects.DtGetUser = createExecuteBridgeObject(
+      'DtGetUser',
+      () =>
+        toJsonStringOrNull({
+          username: state.username || '',
+          password: state.password || '',
+          uuid: state.uuid || '',
+        }),
     );
 
     bridgeObjects.DtGetLogs = createExecuteBridgeObject(
@@ -507,6 +707,11 @@
     bridgeObjects.DtGetVpnState = createExecuteBridgeObject(
       'DtGetVpnState',
       () => state.vpnState,
+    );
+
+    bridgeObjects.DtIsVpnRunning = createExecuteBridgeObject(
+      'DtIsVpnRunning',
+      () => state.vpnState === 'CONNECTED',
     );
 
     bridgeObjects.DtStartAppUpdate = createExecuteBridgeObject(
@@ -571,6 +776,33 @@
       () => {
         appendLog('INFO', 'Menu dialog aberto (simulado)');
       },
+    );
+
+    bridgeObjects.DtShowDialogAdsRewarded = createExecuteBridgeObject(
+      'DtShowDialogAdsRewarded',
+      () => {
+        appendLog('INFO', 'Dialog ads rewarded aberto (simulado)');
+      },
+    );
+
+    bridgeObjects.DtIsAdsEnabled = createExecuteBridgeObject(
+      'DtIsAdsEnabled',
+      () => Boolean(state.adsEnabled),
+    );
+
+    bridgeObjects.DtGetRemainingConnectionTime = createExecuteBridgeObject(
+      'DtGetRemainingConnectionTime',
+      () => toInteger(state.remainingConnectionTime, 0),
+    );
+
+    bridgeObjects.DtGetRemainingConnectionTimerText = createExecuteBridgeObject(
+      'DtGetRemainingConnectionTimerText',
+      () => String(state.remainingConnectionTimerText || '00:00:00'),
+    );
+
+    bridgeObjects.DtGetLastVpnError = createExecuteBridgeObject(
+      'DtGetLastVpnError',
+      () => state.lastVpnError,
     );
 
     bridgeObjects.DtGetNetworkName = createExecuteBridgeObject(
@@ -749,6 +981,61 @@
     bridgeObjects.DtCloseApp = createExecuteBridgeObject('DtCloseApp', () => {
       state.closed = true;
     });
+
+    bridgeObjects.DtCopyToClipboard = createExecuteBridgeObject(
+      'DtCopyToClipboard',
+      (text) => {
+        state.clipboardText = text == null ? '' : String(text);
+        appendLog('INFO', `Texto copiado para clipboard: ${state.clipboardText}`);
+      },
+    );
+
+    bridgeObjects.DtGetClipboardText = createExecuteBridgeObject(
+      'DtGetClipboardText',
+      () => state.clipboardText,
+    );
+
+    bridgeObjects.DtShowToast = createExecuteBridgeObject(
+      'DtShowToast',
+      (message) => {
+        appendLog('INFO', `Toast: ${message}`);
+      },
+    );
+
+    bridgeObjects.DtVibrate = createExecuteBridgeObject(
+      'DtVibrate',
+      (duration) => {
+        appendLog('INFO', `Vibrate: ${duration}ms`);
+      },
+    );
+
+    bridgeObjects.DtIsDarkMode = createExecuteBridgeObject(
+      'DtIsDarkMode',
+      () => Boolean(state.isDarkMode),
+    );
+
+    bridgeObjects.DtGetAppColors = createExecuteBridgeObject(
+      'DtGetAppColors',
+      () => toJsonStringOrNull(state.appColors),
+    );
+
+    bridgeObjects.DtGetDiagnosticReport = createExecuteBridgeObject(
+      'DtGetDiagnosticReport',
+      () => String(state.diagnosticReport || ''),
+    );
+
+    bridgeObjects.DtCopyDiagnosticReport = createExecuteBridgeObject(
+      'DtCopyDiagnosticReport',
+      () => {
+        state.clipboardText = String(state.diagnosticReport || '');
+        appendLog('INFO', 'Relatorio de diagnostico copiado');
+      },
+    );
+
+    bridgeObjects.DtIsSafeMode = createExecuteBridgeObject(
+      'DtIsSafeMode',
+      () => Boolean(state.isSafeMode),
+    );
 
     function install() {
       if (installed) return controller;

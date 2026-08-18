@@ -1,6 +1,7 @@
 import type {
   DTunnelAction,
   DTunnelAirplaneState,
+  DTunnelAppColors,
   DTunnelAssistantState,
   DTunnelBridgeHost,
   DTunnelBridgeObjectName,
@@ -12,6 +13,7 @@ import type {
   DTunnelMessage,
   DTunnelNetworkData,
   DTunnelNotification,
+  DTunnelPendingImport,
   DTunnelSemanticEventName,
   DTunnelVPNState,
 } from './dtunnel-sdk.js';
@@ -25,6 +27,9 @@ export interface DTunnelSDKSimulatorState {
   configs: DTunnelCategory[];
   defaultConfig: DTunnelDefaultConfig;
   selectedConfigId: number;
+  importPublicKey: string;
+  hasPendingImport: boolean;
+  pendingImportDetails: DTunnelPendingImport | null;
   logs: Array<Record<string, string>>;
   vpnState: DTunnelVPNState;
   airplaneState: DTunnelAirplaneState;
@@ -32,6 +37,15 @@ export interface DTunnelSDKSimulatorState {
   localIp: string | null;
   networkName: string | null;
   pingResult: string | null;
+  adsEnabled: boolean;
+  remainingConnectionTime: number;
+  remainingConnectionTimerText: string;
+  lastVpnError: string | null;
+  clipboardText: string;
+  isDarkMode: boolean;
+  appColors: DTunnelAppColors;
+  diagnosticReport: string;
+  isSafeMode: boolean;
   checkUserResult: DTunnelCheckUserResult | null;
   checkUserError: string | null;
   messageError: DTunnelMessage | null;

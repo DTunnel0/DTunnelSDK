@@ -1,50 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
+import type { DTunnelSDK as DTunnelSDKInstance, DTunnelSDKOptions } from '../sdk/dtunnel-sdk.js';
 
 const require = createRequire(import.meta.url);
 const { DTunnelSDK } = require('../sdk/dtunnel-sdk.js') as {
-  DTunnelSDK: new (options?: {
-    window?: Record<string, unknown>;
-    strict?: boolean;
-    autoRegisterNativeEvents?: boolean;
-  }) => {
-    config: {
-      setConfig: (id: number) => void;
-      getUsername: () => string | null;
-      setUsername: (value: string) => void;
-      openConfigDialog: () => void;
-    };
-    main: {
-      showMenuDialog: () => void;
-      showLoggerDialog: () => void;
-      getLogs: () => unknown;
-    };
-    app: {
-      getAppConfig: (name: string) => unknown;
-    };
-    android: {
-      getNetworkData: () => unknown;
-      sendNotification: (
-        title: string,
-        message: string,
-        imageUrl?: string | null,
-      ) => void;
-      startHotSpotService: (port?: number) => void;
-    };
-    getBridgeAvailability: () => Record<string, boolean>;
-    isReady: (requiredObjects?: readonly string[]) => boolean;
-    on: (
-      eventName: string,
-      listener: (event: {
-        payload: unknown;
-        callbackName: string;
-      }) => void,
-    ) => () => void;
-    registerNativeEventHandlers: () => void;
-    unregisterNativeEventHandlers: () => void;
-    destroy: () => void;
-  };
+  DTunnelSDK: new (options?: DTunnelSDKOptions) => DTunnelSDKInstance;
 };
 
 type BridgeCall = {
@@ -231,7 +192,7 @@ test('registers/unregisters native handlers and computes bridge availability/rea
   assert.equal(typeof windowRef.DtVpnStateEvent, 'undefined');
 
   let receivedState: unknown = null;
-  sdk.on('vpnState', (event) => {
+  sdk.on('vpnState', (event: { payload: unknown }) => {
     receivedState = event.payload;
   });
 
@@ -259,3 +220,220 @@ test('registers/unregisters native handlers and computes bridge availability/rea
 
   sdk.destroy();
 });
+
+test('forwards extended category, config import, ads and android device calls', () => {
+  const calls: BridgeCall[] = [];
+  const windowRef = {
+    DtGetCategories: {
+      execute: () => {
+        pushCall(calls, 'DtGetCategories', 'execute', []);
+        return JSON.stringify([{ id: 1, name: 'BR', count: 5 }]);
+      },
+    },
+    DtGetSelectedCategory: {
+      execute: () => {
+        pushCall(calls, 'DtGetSelectedCategory', 'execute', []);
+        return JSON.stringify({ id: 1, name: 'BR' });
+      },
+    },
+    DtGetSelectedCategoryId: {
+      execute: () => {
+        pushCall(calls, 'DtGetSelectedCategoryId', 'execute', []);
+        return 1;
+      },
+    },
+    DtGetConfigsByCategory: {
+      execute: (catId: number) => {
+        pushCall(calls, 'DtGetConfigsByCategory', 'execute', [catId]);
+        return JSON.stringify([{ id: 10, name: 'Config 1' }]);
+      },
+    },
+    DtGetSelectedConfig: {
+      execute: () => {
+        pushCall(calls, 'DtGetSelectedConfig', 'execute', []);
+        return JSON.stringify({ id: 10, name: 'Config 1' });
+      },
+    },
+    DtGetSelectedConfigId: {
+      execute: () => {
+        pushCall(calls, 'DtGetSelectedConfigId', 'execute', []);
+        return 10;
+      },
+    },
+    DtGetConfigCount: {
+      execute: () => {
+        pushCall(calls, 'DtGetConfigCount', 'execute', []);
+        return 5;
+      },
+    },
+    DtGetImportPublicKey: {
+      execute: () => {
+        pushCall(calls, 'DtGetImportPublicKey', 'execute', []);
+        return 'pubkey-abc';
+      },
+    },
+    DtCopyImportPublicKey: {
+      execute: () => pushCall(calls, 'DtCopyImportPublicKey', 'execute', []),
+    },
+    DtImportConfig: {
+      execute: (payload: string) => pushCall(calls, 'DtImportConfig', 'execute', [payload]),
+    },
+    DtHasPendingConfigImport: {
+      execute: () => {
+        pushCall(calls, 'DtHasPendingConfigImport', 'execute', []);
+        return true;
+      },
+    },
+    DtGetPendingConfigImportDetails: {
+      execute: () => {
+        pushCall(calls, 'DtGetPendingConfigImportDetails', 'execute', []);
+        return JSON.stringify({ payload: 'encrypted-data' });
+      },
+    },
+    DtGetUser: {
+      execute: () => {
+        pushCall(calls, 'DtGetUser', 'execute', []);
+        return JSON.stringify({ username: 'user1', password: 'p1', uuid: 'u1' });
+      },
+    },
+    DtIsVpnRunning: {
+      execute: () => {
+        pushCall(calls, 'DtIsVpnRunning', 'execute', []);
+        return true;
+      },
+    },
+    DtShowDialogAdsRewarded: {
+      execute: () => pushCall(calls, 'DtShowDialogAdsRewarded', 'execute', []),
+    },
+    DtIsAdsEnabled: {
+      execute: () => {
+        pushCall(calls, 'DtIsAdsEnabled', 'execute', []);
+        return true;
+      },
+    },
+    DtGetRemainingConnectionTime: {
+      execute: () => {
+        pushCall(calls, 'DtGetRemainingConnectionTime', 'execute', []);
+        return 7200;
+      },
+    },
+    DtGetRemainingConnectionTimerText: {
+      execute: () => {
+        pushCall(calls, 'DtGetRemainingConnectionTimerText', 'execute', []);
+        return '02:00:00';
+      },
+    },
+    DtGetLastVpnError: {
+      execute: () => {
+        pushCall(calls, 'DtGetLastVpnError', 'execute', []);
+        return 'Timeout connecting';
+      },
+    },
+    DtCopyToClipboard: {
+      execute: (text: string) => pushCall(calls, 'DtCopyToClipboard', 'execute', [text]),
+    },
+    DtGetClipboardText: {
+      execute: () => {
+        pushCall(calls, 'DtGetClipboardText', 'execute', []);
+        return 'clip-text';
+      },
+    },
+    DtShowToast: {
+      execute: (msg: string) => pushCall(calls, 'DtShowToast', 'execute', [msg]),
+    },
+    DtVibrate: {
+      execute: (d: number) => pushCall(calls, 'DtVibrate', 'execute', [d]),
+    },
+    DtIsDarkMode: {
+      execute: () => {
+        pushCall(calls, 'DtIsDarkMode', 'execute', []);
+        return true;
+      },
+    },
+    DtGetAppColors: {
+      execute: () => {
+        pushCall(calls, 'DtGetAppColors', 'execute', []);
+        return JSON.stringify({ backgroundColor: '#000000' });
+      },
+    },
+    DtGetDiagnosticReport: {
+      execute: () => {
+        pushCall(calls, 'DtGetDiagnosticReport', 'execute', []);
+        return 'diag-report';
+      },
+    },
+    DtCopyDiagnosticReport: {
+      execute: () => pushCall(calls, 'DtCopyDiagnosticReport', 'execute', []),
+    },
+    DtIsSafeMode: {
+      execute: () => {
+        pushCall(calls, 'DtIsSafeMode', 'execute', []);
+        return false;
+      },
+    },
+  };
+
+  const sdk = new DTunnelSDK({
+    window: windowRef,
+    strict: true,
+    autoRegisterNativeEvents: false,
+  });
+
+  const categories = sdk.config.getCategories() as Array<{ id: number; name: string }>;
+  const selCat = sdk.config.getSelectedCategory() as { id: number; name: string };
+  const selCatId = sdk.config.getSelectedCategoryId();
+  const catConfigs = sdk.config.getConfigsByCategory(1);
+  const selConfig = sdk.config.getSelectedConfig();
+  const selConfigId = sdk.config.getSelectedConfigId();
+  const configCount = sdk.config.getConfigCount();
+  const importKey = sdk.config.getImportPublicKey();
+  sdk.config.copyImportPublicKey();
+  sdk.config.importConfig('payload123');
+  const hasPending = sdk.config.hasPendingConfigImport();
+  const pendingDetails = sdk.config.getPendingConfigImportDetails() as { payload: string };
+  const user = sdk.config.getUser() as { username: string };
+
+  const isVpnRunning = sdk.main.isVpnRunning();
+  sdk.main.showAdsRewardedDialog();
+  const isAdsEnabled = sdk.main.isAdsEnabled();
+  const remainingTime = sdk.main.getRemainingConnectionTime();
+  const remainingTimerText = sdk.main.getRemainingConnectionTimerText();
+  const lastError = sdk.main.getLastVpnError();
+
+  sdk.android.copyToClipboard('hello');
+  const clip = sdk.android.getClipboardText();
+  sdk.android.showToast('saved');
+  sdk.android.vibrate(100);
+  const darkMode = sdk.android.isDarkMode();
+  const colors = sdk.android.getAppColors() as { backgroundColor: string };
+  const diag = sdk.android.getDiagnosticReport();
+  sdk.android.copyDiagnosticReport();
+  const safeMode = sdk.android.isSafeMode();
+
+  assert.equal(categories[0].name, 'BR');
+  assert.equal(selCat.name, 'BR');
+  assert.equal(selCatId, 1);
+  assert.equal(catConfigs?.length, 1);
+  assert.equal(selConfig?.id, 10);
+  assert.equal(selConfigId, 10);
+  assert.equal(configCount, 5);
+  assert.equal(importKey, 'pubkey-abc');
+  assert.equal(hasPending, true);
+  assert.equal(pendingDetails.payload, 'encrypted-data');
+  assert.equal(user.username, 'user1');
+
+  assert.equal(isVpnRunning, true);
+  assert.equal(isAdsEnabled, true);
+  assert.equal(remainingTime, 7200);
+  assert.equal(remainingTimerText, '02:00:00');
+  assert.equal(lastError, 'Timeout connecting');
+
+  assert.equal(clip, 'clip-text');
+  assert.equal(darkMode, true);
+  assert.equal(colors.backgroundColor, '#000000');
+  assert.equal(diag, 'diag-report');
+  assert.equal(safeMode, false);
+
+  sdk.destroy();
+});
+
